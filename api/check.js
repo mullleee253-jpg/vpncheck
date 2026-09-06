@@ -2,24 +2,26 @@ import net from "net";
 
 const SERVERS = {
     ch: {
+        name: "Switzerland",
         host: "31.76.4.168",
         port: 25558
     },
 
     pl: {
+        name: "Poland",
         host: "2.26.255.84",
         port: 27489
     }
 };
 
-function tcpCheck(server) {
+export function tcpCheck(host, port) {
     return new Promise((resolve) => {
         const started = process.hrtime.bigint();
         const socket = new net.Socket();
 
         let finished = false;
 
-        function finish(result) {
+        const finish = (result) => {
             if (finished) return;
 
             finished = true;
@@ -29,17 +31,15 @@ function tcpCheck(server) {
             } catch {}
 
             resolve(result);
-        }
+        };
 
-        // Максимальное время ожидания — 5 секунд
         socket.setTimeout(5000);
 
-        // Сервер доступен
         socket.once("connect", () => {
             const ended = process.hrtime.bigint();
 
             const latency =
-                Number(ended - started) / 1_000_000;
+                Number(ended - started) / 1000000;
 
             finish({
                 status: "online",
@@ -47,7 +47,6 @@ function tcpCheck(server) {
             });
         });
 
-        // Таймаут
         socket.once("timeout", () => {
             finish({
                 status: "offline",
@@ -55,7 +54,6 @@ function tcpCheck(server) {
             });
         });
 
-        // Ошибка подключения
         socket.once("error", (error) => {
             finish({
                 status: "offline",
@@ -65,8 +63,8 @@ function tcpCheck(server) {
 
         try {
             socket.connect({
-                host: server.host,
-                port: server.port
+                host,
+                port: Number(port)
             });
         } catch (error) {
             finish({
@@ -84,44 +82,82 @@ export default async function handler(req, res) {
             `https://${req.headers.host || "localhost"}`
         );
 
-        // Получаем ?server=ch или ?server=pl
-        const key =
-            url.searchParams.get("server") ||
-            req.query?.server;
+        const serverKey = url.searchParams.get("server");
 
-        // Если параметр вообще не передан
-        if (!key) {
+        const customHost = url.searchParams.get("host");
+        const customPort = url.searchParams.get("port");
+
+        let host;
+        let port;
+        let name;
+        let key;
+
+        /*
+         * /api/check?server=ch
+         * /api/check?server=pl
+         */
+
+        if (serverKey) {
+            const server = SERVERS[serverKey];
+
+            if (!server) {
+                return res.status(400).json({
+                    ok: false,
+                    error: "Invalid server",
+                    available: Object.keys(SERVERS)
+                });
+            }
+
+            host = server.host;
+            port = server.port;
+            name = server.name;
+            key = serverKey;
+        }
+
+        /*
+         * Поддержка старого frontend:
+         *
+         * /api/check?host=31.76.4.168&port=25558
+         */
+
+        else if (customHost && customPort) {
+            host = customHost;
+            port = Number(customPort);
+            name = "Custom";
+            key = "custom";
+        }
+
+        else {
             return res.status(400).json({
                 ok: false,
-                error: "Missing server parameter",
+                error: "Missing server parameters",
                 expected: [
                     "/api/check?server=ch",
-                    "/api/check?server=pl"
-                ],
-                received_url: req.url
+                    "/api/check?server=pl",
+                    "/api/check?host=31.76.4.168&port=25558"
+                ]
             });
         }
 
-        // Если передан неизвестный сервер
-        if (!SERVERS[key]) {
+        if (
+            !Number.isInteger(Number(port)) ||
+            Number(port) < 1 ||
+            Number(port) > 65535
+        ) {
             return res.status(400).json({
                 ok: false,
-                error: "Invalid server",
-                received: key,
-                available: Object.keys(SERVERS)
+                error: "Invalid port"
             });
         }
 
-        const server = SERVERS[key];
-
-        // TCP-проверка
-        const result = await tcpCheck(server);
+        const result = await tcpCheck(host, Number(port));
 
         return res.status(200).json({
             ok: true,
             server: key,
-            host: server.host,
-            port: server.port,
+            name,
+            host,
+            port: Number(port),
             ...result
         });
 
