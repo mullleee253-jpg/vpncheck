@@ -5,56 +5,72 @@ const redis = Redis.fromEnv();
 
 const SERVERS = {
     ch: {
+        name: "Switzerland",
         host: "31.76.4.168",
         port: 25558
     },
 
     pl: {
+        name: "Poland",
         host: "2.26.255.84",
         port: 27489
     }
 };
 
-const CHECK_INTERVAL = 60;
-
 async function monitorServer(key) {
     const server = SERVERS[key];
 
-    const result = await tcpCheck(server);
+    const result = await tcpCheck(
+        server.host,
+        server.port
+    );
 
     const now = Date.now();
 
     const redisKey = `vpn:server:${key}`;
 
-    let state =
-        await redis.get(redisKey);
+    let state = await redis.get(redisKey);
+
+    /*
+     * Первый запуск
+     */
 
     if (!state) {
         state = {
+            server: key,
+            name: server.name,
+
+            host: server.host,
+            port: server.port,
+
             status: result.status,
 
             first_check: now,
-
             last_check: now,
 
             online_seconds:
-                result.status === "online"
-                    ? CHECK_INTERVAL
-                    : 0,
+                result.status === "online" ? 60 : 0,
 
             offline_seconds:
-                result.status === "offline"
-                    ? CHECK_INTERVAL
-                    : 0,
+                result.status === "offline" ? 60 : 0,
 
-            incidents: 0,
+            incidents:
+                result.status === "offline" ? 1 : 0,
+
+            stable_since:
+                result.status === "online"
+                    ? now
+                    : null,
 
             current_incident_start:
                 result.status === "offline"
                     ? now
                     : null,
 
-            last_down: null,
+            last_down:
+                result.status === "offline"
+                    ? now
+                    : null,
 
             last_up:
                 result.status === "online"
@@ -64,47 +80,89 @@ async function monitorServer(key) {
             last_latency:
                 result.response_time_ms ?? null
         };
-    } else {
-        const previousStatus =
-            state.status;
+    }
+
+    /*
+     * Последующие проверки
+     */
+
+    else {
+        const previousStatus = state.status;
+
+        const elapsedSeconds = Math.min(
+            Math.max(
+                (now - Number(state.last_check || now)) / 1000,
+                0
+            ),
+            300
+        );
 
         state.last_check = now;
 
+        /*
+         * ONLINE
+         */
+
         if (result.status === "online") {
-            state.online_seconds +=
-                CHECK_INTERVAL;
+            state.online_seconds =
+                Number(state.online_seconds || 0) +
+                elapsedSeconds;
 
             state.last_latency =
                 result.response_time_ms ?? null;
 
             state.last_up = now;
 
-            if (
-                previousStatus === "offline"
-            ) {
-                state.current_incident_start =
-                    null;
+            /*
+             * OFFLINE -> ONLINE
+             */
+
+            if (previousStatus === "offline") {
+                state.stable_since = now;
+                state.current_incident_start = null;
+            }
+
+            /*
+             * Если почему-то stable_since отсутствует
+             */
+
+            if (!state.stable_since) {
+                state.stable_since = now;
             }
         }
 
-        if (result.status === "offline") {
-            state.offline_seconds +=
-                CHECK_INTERVAL;
+        /*
+         * OFFLINE
+         */
 
-            if (
-                previousStatus !== "offline"
-            ) {
-                state.incidents += 1;
+        else {
+            state.offline_seconds =
+                Number(state.offline_seconds || 0) +
+                elapsedSeconds;
 
-                state.current_incident_start =
-                    now;
+            /*
+             * ONLINE -> OFFLINE
+             */
 
+            if (previousStatus !== "offline") {
+                state.incidents =
+                    Number(state.incidents || 0) + 1;
+
+                state.current_incident_start = now;
                 state.last_down = now;
             }
+
+            /*
+             * Если уже offline, начало инцидента
+             * сохраняем
+             */
+
+            if (!state.current_incident_start) {
+                state.current_incident_start = now;
+            }
         }
 
-        state.status =
-            result.status;
+        state.status = result.status;
     }
 
     await redis.set(
@@ -112,19 +170,15 @@ async function monitorServer(key) {
         state
     );
 
-    return {
-        server: key,
-        ...state
-    };
+    return state;
 }
 
 export default async function handler(req, res) {
     try {
-        const results =
-            await Promise.all([
-                monitorServer("ch"),
-                monitorServer("pl")
-            ]);
+        const results = await Promise.all([
+            monitorServer("ch"),
+            monitorServer("pl")
+        ]);
 
         return res.status(200).json({
             ok: true,
@@ -133,7 +187,10 @@ export default async function handler(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
+        console.error(
+            "MONITOR ERROR:",
+            error
+        );
 
         return res.status(500).json({
             ok: false,
