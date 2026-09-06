@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>VPN Monitor</title>
 
     <style>
@@ -10,11 +11,12 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html,
+        body {
             margin: 0;
             min-height: 100%;
-            background: #030303;
-            color: #fff;
+            background: #020202;
+            color: white;
             font-family: Inter, Arial, sans-serif;
         }
 
@@ -22,122 +24,213 @@
             overflow-x: hidden;
         }
 
-        /* Animated background */
+        /* =========================
+           BACKGROUND
+        ========================= */
+
         .background {
             position: fixed;
             inset: 0;
             overflow: hidden;
             pointer-events: none;
             z-index: 0;
+
             background:
-                radial-gradient(circle at 50% -20%, #151515 0%, #050505 38%, #000 75%);
+                radial-gradient(
+                    circle at 50% -20%,
+                    #171717 0%,
+                    #050505 40%,
+                    #000 80%
+                );
         }
 
         .orb {
             position: absolute;
-            width: 400px;
-            height: 400px;
+
+            width: 420px;
+            height: 420px;
+
             border-radius: 50%;
-            filter: blur(100px);
-            opacity: .12;
-            animation: float 12s ease-in-out infinite;
+
+            filter: blur(110px);
+
+            opacity: .11;
+
+            animation:
+                floating 12s ease-in-out infinite;
         }
 
         .orb.one {
             background: #00ff88;
-            left: -180px;
+
+            left: -220px;
             top: 10%;
         }
 
         .orb.two {
             background: #0088ff;
-            right: -180px;
-            top: 50%;
+
+            right: -220px;
+            top: 45%;
+
             animation-delay: -5s;
         }
 
         .orb.three {
-            background: #ffffff;
+            background: white;
+
             left: 40%;
-            bottom: -300px;
-            opacity: .045;
+            bottom: -330px;
+
+            opacity: .035;
+
             animation-delay: -8s;
         }
 
-        @keyframes float {
-            0%, 100% {
-                transform: translate3d(0, 0, 0) scale(1);
+        @keyframes floating {
+            0%,
+            100% {
+                transform:
+                    translate3d(0, 0, 0)
+                    scale(1);
             }
+
             50% {
-                transform: translate3d(40px, -50px, 0) scale(1.12);
+                transform:
+                    translate3d(40px, -50px, 0)
+                    scale(1.12);
             }
         }
 
         .grid {
             position: absolute;
             inset: 0;
-            opacity: .035;
+
+            opacity: .025;
+
             background-image:
-                linear-gradient(rgba(255,255,255,.5) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,.5) 1px, transparent 1px);
+                linear-gradient(
+                    rgba(255,255,255,.5) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,.5) 1px,
+                    transparent 1px
+                );
+
             background-size: 55px 55px;
-            transform: perspective(500px) rotateX(55deg) scale(1.5);
+
+            transform:
+                perspective(500px)
+                rotateX(55deg)
+                scale(1.5);
+
             transform-origin: center bottom;
-            animation: gridMove 15s linear infinite;
+
+            animation:
+                gridMove 15s linear infinite;
         }
 
         @keyframes gridMove {
             from {
-                transform: perspective(500px) rotateX(55deg) scale(1.5) translateY(0);
+                transform:
+                    perspective(500px)
+                    rotateX(55deg)
+                    scale(1.5)
+                    translateY(0);
             }
+
             to {
-                transform: perspective(500px) rotateX(55deg) scale(1.5) translateY(55px);
+                transform:
+                    perspective(500px)
+                    rotateX(55deg)
+                    scale(1.5)
+                    translateY(55px);
             }
         }
 
-        /* Main */
+        /* =========================
+           MAIN
+        ========================= */
+
         .container {
             position: relative;
+
             z-index: 2;
-            width: min(1000px, calc(100% - 32px));
+
+            width: min(
+                1000px,
+                calc(100% - 32px)
+            );
+
             margin: 0 auto;
-            padding: 70px 0 60px;
+
+            padding:
+                70px
+                0
+                60px;
         }
 
         header {
             text-align: center;
+
             margin-bottom: 45px;
         }
 
         .badge {
             display: inline-flex;
+
             align-items: center;
+
             gap: 8px;
-            padding: 8px 13px;
-            border: 1px solid rgba(255,255,255,.1);
+
+            padding:
+                8px
+                13px;
+
+            border:
+                1px solid
+                rgba(255,255,255,.1);
+
             border-radius: 999px;
-            background: rgba(255,255,255,.035);
+
+            background:
+                rgba(255,255,255,.035);
+
             backdrop-filter: blur(15px);
+
             color: #aaa;
+
             font-size: 12px;
+
             letter-spacing: .08em;
+
             text-transform: uppercase;
         }
 
         .badge-dot {
             width: 7px;
             height: 7px;
+
             background: #00ff88;
+
             border-radius: 50%;
-            box-shadow: 0 0 14px #00ff88;
-            animation: pulse 1.5s infinite;
+
+            box-shadow:
+                0 0 14px #00ff88;
+
+            animation:
+                pulse 1.5s infinite;
         }
 
         @keyframes pulse {
-            0%, 100% {
+            0%,
+            100% {
                 opacity: 1;
                 transform: scale(1);
             }
+
             50% {
                 opacity: .4;
                 transform: scale(.75);
@@ -145,36 +238,67 @@
         }
 
         h1 {
-            margin: 20px 0 10px;
-            font-size: clamp(38px, 7vw, 70px);
+            margin:
+                20px
+                0
+                10px;
+
+            font-size:
+                clamp(
+                    38px,
+                    7vw,
+                    70px
+                );
+
             line-height: .95;
+
             letter-spacing: -.055em;
+
             font-weight: 800;
         }
 
         .subtitle {
             color: #777;
+
             font-size: 15px;
         }
 
-        /* Cards */
+        /* =========================
+           SERVER CARDS
+        ========================= */
+
         .servers {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
             gap: 18px;
         }
 
         .card {
             position: relative;
+
             overflow: hidden;
+
             padding: 26px;
-            border: 1px solid rgba(255,255,255,.09);
+
+            border:
+                1px solid
+                rgba(255,255,255,.09);
+
             border-radius: 22px;
-            background: rgba(10,10,10,.7);
+
+            background:
+                rgba(10,10,10,.72);
+
             backdrop-filter: blur(20px);
+
             box-shadow:
                 0 20px 60px rgba(0,0,0,.4),
-                inset 0 1px 0 rgba(255,255,255,.04);
+                inset 0 1px 0
+                rgba(255,255,255,.04);
+
             transition:
                 transform .35s ease,
                 border-color .35s ease,
@@ -183,40 +307,63 @@
 
         .card::before {
             content: "";
+
             position: absolute;
+
             inset: 0;
-            background: linear-gradient(
-                120deg,
-                transparent 20%,
-                rgba(255,255,255,.035),
-                transparent 80%
-            );
-            transform: translateX(-100%);
-            transition: transform .8s ease;
+
+            background:
+                linear-gradient(
+                    120deg,
+                    transparent 20%,
+                    rgba(255,255,255,.035),
+                    transparent 80%
+                );
+
+            transform:
+                translateX(-100%);
+
+            transition:
+                transform .8s ease;
         }
 
         .card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(255,255,255,.16);
+            transform:
+                translateY(-5px);
+
+            border-color:
+                rgba(255,255,255,.16);
+
             box-shadow:
-                0 30px 80px rgba(0,0,0,.55),
-                inset 0 1px 0 rgba(255,255,255,.06);
+                0 30px 80px
+                rgba(0,0,0,.55),
+                inset 0 1px 0
+                rgba(255,255,255,.06);
         }
 
         .card:hover::before {
-            transform: translateX(100%);
+            transform:
+                translateX(100%);
         }
 
         .top {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                flex-start;
+
             margin-bottom: 35px;
         }
 
         .country {
             display: flex;
-            align-items: center;
+
+            align-items:
+                center;
+
             gap: 12px;
         }
 
@@ -226,46 +373,72 @@
 
         .country-name {
             font-size: 18px;
+
             font-weight: 700;
         }
 
         .location {
             margin-top: 4px;
+
             color: #666;
+
             font-size: 12px;
         }
 
+        /* =========================
+           STATUS
+        ========================= */
+
         .status {
             display: flex;
+
             align-items: center;
+
             gap: 7px;
+
             font-size: 11px;
+
             font-weight: 700;
+
             letter-spacing: .1em;
         }
 
         .status-dot {
             width: 8px;
             height: 8px;
+
             border-radius: 50%;
+
             background: #777;
         }
 
         .online .status-dot {
             background: #00ff88;
-            box-shadow: 0 0 16px #00ff88;
-            animation: pulse 1.5s infinite;
+
+            box-shadow:
+                0 0 16px #00ff88;
+
+            animation:
+                pulse 1.5s infinite;
         }
 
         .offline .status-dot {
             background: #ff4545;
-            box-shadow: 0 0 12px rgba(255,69,69,.7);
+
+            box-shadow:
+                0 0 12px
+                rgba(255,69,69,.7);
         }
 
         .checking .status-dot {
             background: #ffc400;
-            box-shadow: 0 0 12px rgba(255,196,0,.7);
-            animation: pulse .7s infinite;
+
+            box-shadow:
+                0 0 12px
+                rgba(255,196,0,.7);
+
+            animation:
+                pulse .7s infinite;
         }
 
         .unknown .status-dot {
@@ -288,114 +461,205 @@
             color: #ffc400;
         }
 
+        /* =========================
+           METRICS
+        ========================= */
+
         .metrics {
             display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
+
+            align-items:
+                flex-end;
+
+            justify-content:
+                space-between;
         }
 
         .latency-value {
             font-size: 48px;
+
             line-height: 1;
+
             font-weight: 800;
+
             letter-spacing: -.06em;
         }
 
         .latency-unit {
             color: #555;
+
             font-size: 13px;
+
             margin-left: 5px;
         }
 
         .endpoint {
             text-align: right;
+
             color: #666;
+
             font-family: monospace;
+
             font-size: 12px;
         }
 
         .footer {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                center;
+
             margin-top: 25px;
+
             padding-top: 18px;
-            border-top: 1px solid rgba(255,255,255,.06);
+
+            border-top:
+                1px solid
+                rgba(255,255,255,.06);
+
             color: #555;
+
             font-size: 12px;
         }
 
-        /* Controls */
+        /* =========================
+           BUTTON
+        ========================= */
+
         .controls {
             display: flex;
-            justify-content: center;
+
+            justify-content:
+                center;
+
             margin-top: 28px;
         }
 
         button {
             display: inline-flex;
+
             align-items: center;
+
             gap: 10px;
-            padding: 13px 20px;
-            border: 1px solid rgba(255,255,255,.1);
+
+            padding:
+                13px
+                20px;
+
+            border:
+                1px solid
+                rgba(255,255,255,.1);
+
             border-radius: 12px;
-            background: rgba(255,255,255,.05);
+
+            background:
+                rgba(255,255,255,.05);
+
             color: #ddd;
+
             cursor: pointer;
+
             font-size: 13px;
-            transition: .25s ease;
+
+            transition:
+                .25s ease;
         }
 
         button:hover {
-            background: rgba(255,255,255,.09);
-            border-color: rgba(255,255,255,.18);
-            transform: translateY(-2px);
+            background:
+                rgba(255,255,255,.09);
+
+            border-color:
+                rgba(255,255,255,.18);
+
+            transform:
+                translateY(-2px);
         }
 
         button:active {
-            transform: translateY(0);
+            transform:
+                translateY(0);
+        }
+
+        button:disabled {
+            opacity: .6;
+
+            cursor:
+                not-allowed;
         }
 
         .refresh-icon {
             display: inline-block;
-            font-size: 16px;
+
+            font-size: 17px;
         }
 
         button.loading .refresh-icon {
-            animation: spin .8s linear infinite;
+            animation:
+                spin .8s linear infinite;
         }
 
         @keyframes spin {
             to {
-                transform: rotate(360deg);
+                transform:
+                    rotate(360deg);
             }
         }
 
+        /* =========================
+           UPDATE
+        ========================= */
+
         .update-info {
             margin-top: 20px;
+
             text-align: center;
+
             color: #444;
+
             font-size: 11px;
         }
 
-        /* Timer */
+        /* =========================
+           TIMER
+        ========================= */
+
         .timer {
             position: fixed;
+
             bottom: 0;
             left: 0;
+
             width: 100%;
+
             height: 2px;
-            background: rgba(255,255,255,.04);
+
+            background:
+                rgba(255,255,255,.04);
+
             z-index: 10;
         }
 
         .timer-bar {
             height: 100%;
+
             width: 100%;
+
             background: #00ff88;
-            transform-origin: left;
-            box-shadow: 0 0 10px #00ff88;
+
+            transform-origin:
+                left center;
+
+            box-shadow:
+                0 0 10px #00ff88;
         }
+
+        /* =========================
+           MOBILE
+        ========================= */
 
         @media (max-width: 700px) {
             .container {
@@ -419,209 +683,441 @@
 
 <body>
 
-<div class="background">
-    <div class="orb one"></div>
-    <div class="orb two"></div>
-    <div class="orb three"></div>
-    <div class="grid"></div>
-</div>
-
-<main class="container">
-
-    <header>
-        <div class="badge">
-            <span class="badge-dot"></span>
-            VPN Network Monitor
-        </div>
-
-        <h1>Server Status</h1>
-
-        <div class="subtitle">
-            Real-time TCP connectivity monitoring
-        </div>
-    </header>
-
-    <section class="servers">
-
-        <!-- Switzerland -->
-        <article class="card" id="server-ch">
-            <div class="top">
-                <div class="country">
-                    <div class="flag">🇨🇭</div>
-
-                    <div>
-                        <div class="country-name">Switzerland</div>
-                        <div class="location">VPN Node · CH</div>
-                    </div>
-                </div>
-
-                <div class="status checking">
-                    <span class="status-dot"></span>
-                    <span class="status-text">CHECKING</span>
-                </div>
-            </div>
-
-            <div class="metrics">
-                <div>
-                    <span class="latency-value">—</span>
-                    <span class="latency-unit">ms</span>
-                </div>
-
-                <div class="endpoint">
-                    31.76.4.168:25558
-                </div>
-            </div>
-
-            <div class="footer">
-                <span>TCP connection</span>
-                <span class="server-error"></span>
-            </div>
-        </article>
-
-        <!-- Poland -->
-        <article class="card" id="server-pl">
-            <div class="top">
-                <div class="country">
-                    <div class="flag">🇵🇱</div>
-
-                    <div>
-                        <div class="country-name">Poland</div>
-                        <div class="location">VPN Node · PL</div>
-                    </div>
-                </div>
-
-                <div class="status checking">
-                    <span class="status-dot"></span>
-                    <span class="status-text">CHECKING</span>
-                </div>
-            </div>
-
-            <div class="metrics">
-                <div>
-                    <span class="latency-value">—</span>
-                    <span class="latency-unit">ms</span>
-                </div>
-
-                <div class="endpoint">
-                    2.26.255.84:27489
-                </div>
-            </div>
-
-            <div class="footer">
-                <span>TCP connection</span>
-                <span class="server-error"></span>
-            </div>
-        </article>
-
-    </section>
-
-    <div class="controls">
-        <button id="refreshBtn">
-            <span class="refresh-icon">↻</span>
-            Check servers
-        </button>
+    <div class="background">
+        <div class="orb one"></div>
+        <div class="orb two"></div>
+        <div class="orb three"></div>
+        <div class="grid"></div>
     </div>
 
-    <div class="update-info">
-        Last update: <span id="lastUpdate">—</span>
+
+    <main class="container">
+
+        <header>
+
+            <div class="badge">
+                <span class="badge-dot"></span>
+                VPN Network Monitor
+            </div>
+
+            <h1>
+                Server Status
+            </h1>
+
+            <div class="subtitle">
+                Real-time TCP connectivity monitoring
+            </div>
+
+        </header>
+
+
+        <section class="servers">
+
+            <!-- SWITZERLAND -->
+
+            <article
+                class="card"
+                id="server-ch"
+            >
+
+                <div class="top">
+
+                    <div class="country">
+
+                        <div class="flag">
+                            🇨🇭
+                        </div>
+
+                        <div>
+
+                            <div class="country-name">
+                                Switzerland
+                            </div>
+
+                            <div class="location">
+                                VPN Node · CH
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="status checking">
+
+                        <span class="status-dot"></span>
+
+                        <span class="status-text">
+                            CHECKING
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="metrics">
+
+                    <div>
+
+                        <span class="latency-value">
+                            —
+                        </span>
+
+                        <span class="latency-unit">
+                            ms
+                        </span>
+
+                    </div>
+
+
+                    <div class="endpoint">
+                        31.76.4.168:25558
+                    </div>
+
+                </div>
+
+
+                <div class="footer">
+
+                    <span>
+                        TCP connection
+                    </span>
+
+                    <span class="server-error"></span>
+
+                </div>
+
+            </article>
+
+
+            <!-- POLAND -->
+
+            <article
+                class="card"
+                id="server-pl"
+            >
+
+                <div class="top">
+
+                    <div class="country">
+
+                        <div class="flag">
+                            🇵🇱
+                        </div>
+
+                        <div>
+
+                            <div class="country-name">
+                                Poland
+                            </div>
+
+                            <div class="location">
+                                VPN Node · PL
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="status checking">
+
+                        <span class="status-dot"></span>
+
+                        <span class="status-text">
+                            CHECKING
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="metrics">
+
+                    <div>
+
+                        <span class="latency-value">
+                            —
+                        </span>
+
+                        <span class="latency-unit">
+                            ms
+                        </span>
+
+                    </div>
+
+
+                    <div class="endpoint">
+                        2.26.255.84:27489
+                    </div>
+
+                </div>
+
+
+                <div class="footer">
+
+                    <span>
+                        TCP connection
+                    </span>
+
+                    <span class="server-error"></span>
+
+                </div>
+
+            </article>
+
+        </section>
+
+
+        <div class="controls">
+
+            <button id="refreshBtn">
+
+                <span class="refresh-icon">
+                    ↻
+                </span>
+
+                Check servers
+
+            </button>
+
+        </div>
+
+
+        <div class="update-info">
+
+            Last update:
+            <span id="lastUpdate">
+                —
+            </span>
+
+        </div>
+
+    </main>
+
+
+    <div class="timer">
+
+        <div
+            class="timer-bar"
+            id="timerBar"
+        ></div>
+
     </div>
-
-</main>
-
-<div class="timer">
-    <div class="timer-bar" id="timerBar"></div>
-</div>
 
 
 <script>
+
     const SERVERS = [
+
         {
             id: "server-ch",
             host: "31.76.4.168",
             port: 25558
         },
+
         {
             id: "server-pl",
             host: "2.26.255.84",
             port: 27489
         }
+
     ];
+
 
     const REFRESH_INTERVAL = 30000;
 
-    let refreshTimer;
-    let animationFrame;
-    let timerStart;
 
-    function setStatus(card, status, latency = null, error = "") {
-        const statusEl = card.querySelector(".status");
-        const textEl = card.querySelector(".status-text");
-        const latencyEl = card.querySelector(".latency-value");
-        const errorEl = card.querySelector(".server-error");
+    let refreshTimer = null;
 
-        statusEl.className = "status " + status;
+    let animationFrame = null;
+
+    let timerStart = 0;
+
+
+    /* =========================
+       STATUS
+    ========================= */
+
+    function setStatus(
+        card,
+        status,
+        latency = null,
+        error = ""
+    ) {
+
+        const statusEl =
+            card.querySelector(".status");
+
+        const textEl =
+            card.querySelector(".status-text");
+
+        const latencyEl =
+            card.querySelector(".latency-value");
+
+        const errorEl =
+            card.querySelector(".server-error");
+
+
+        statusEl.className =
+            "status " + status;
+
 
         if (status === "online") {
-            textEl.textContent = "ONLINE";
-            latencyEl.textContent = latency ?? "—";
+
+            textEl.textContent =
+                "ONLINE";
+
+            latencyEl.textContent =
+                latency ?? "—";
+
         }
 
         else if (status === "offline") {
-            textEl.textContent = "OFFLINE";
-            latencyEl.textContent = "—";
+
+            textEl.textContent =
+                "OFFLINE";
+
+            latencyEl.textContent =
+                "—";
+
         }
 
         else if (status === "checking") {
-            textEl.textContent = "CHECKING";
-            latencyEl.textContent = "—";
+
+            textEl.textContent =
+                "CHECKING";
+
+            latencyEl.textContent =
+                "—";
+
         }
 
         else {
-            textEl.textContent = "UNKNOWN";
-            latencyEl.textContent = "—";
+
+            textEl.textContent =
+                "UNKNOWN";
+
+            latencyEl.textContent =
+                "—";
+
         }
 
-        errorEl.textContent = error || "";
+
+        errorEl.textContent =
+            error || "";
+
     }
 
 
-    async function checkServer(server) {
-        const card = document.getElementById(server.id);
+    /* =========================
+       CHECK ONE SERVER
+    ========================= */
 
-        setStatus(card, "checking");
+    async function checkServer(server) {
+
+        const card =
+            document.getElementById(
+                server.id
+            );
+
+
+        setStatus(
+            card,
+            "checking"
+        );
+
 
         try {
-            const url =
-                `/api/check?host=${encodeURIComponent(server.host)}&port=${encodeURIComponent(server.port)}`;
 
-            const response = await fetch(url, {
-                method: "GET",
-                cache: "no-store"
-            });
+            const url =
+                "/api/check" +
+                "?host=" +
+                encodeURIComponent(
+                    server.host
+                ) +
+                "&port=" +
+                encodeURIComponent(
+                    server.port
+                );
+
+
+            const response =
+                await fetch(
+                    url,
+                    {
+                        method: "GET",
+
+                        cache: "no-store"
+                    }
+                );
+
 
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
+
+                throw new Error(
+                    "HTTP " +
+                    response.status
+                );
+
             }
 
-            const data = await response.json();
 
-            if (data.status === "online") {
+            const data =
+                await response.json();
+
+
+            if (
+                data.status ===
+                "online"
+            ) {
+
                 setStatus(
                     card,
                     "online",
-                    Math.round(data.response_time_ms)
+                    Math.round(
+                        data.response_time_ms
+                    )
                 );
-            } else {
+
+            }
+
+            else if (
+                data.status ===
+                "offline"
+            ) {
+
                 setStatus(
                     card,
                     "offline",
                     null,
                     data.error || ""
                 );
+
             }
 
-        } catch (error) {
-            console.error(server.host, error);
+            else {
+
+                setStatus(
+                    card,
+                    "unknown",
+                    null,
+                    data.error || ""
+                );
+
+            }
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Server check error:",
+                error
+            );
+
 
             setStatus(
                 card,
@@ -629,61 +1125,151 @@
                 null,
                 "API error"
             );
+
         }
+
     }
 
+
+    /* =========================
+       CHECK ALL
+    ========================= */
 
     async function checkAll() {
-        const button = document.getElementById("refreshBtn");
 
-        button.classList.add("loading");
-        button.disabled = true;
+        const button =
+            document.getElementById(
+                "refreshBtn"
+            );
 
-        await Promise.all(
-            SERVERS.map(server => checkServer(server))
+
+        button.classList.add(
+            "loading"
         );
 
-        document.getElementById("lastUpdate").textContent =
-            new Date().toLocaleTimeString();
+        button.disabled = true;
 
-        button.classList.remove("loading");
+
+        await Promise.all(
+
+            SERVERS.map(
+                server =>
+                    checkServer(server)
+            )
+
+        );
+
+
+        document.getElementById(
+            "lastUpdate"
+        ).textContent =
+            new Date()
+                .toLocaleTimeString();
+
+
+        button.classList.remove(
+            "loading"
+        );
+
         button.disabled = false;
 
+
         restartTimer();
+
     }
 
+
+    /* =========================
+       AUTO REFRESH TIMER
+    ========================= */
 
     function restartTimer() {
-        clearTimeout(refreshTimer);
 
-        timerStart = performance.now();
+        clearTimeout(
+            refreshTimer
+        );
 
-        cancelAnimationFrame(animationFrame);
+
+        cancelAnimationFrame(
+            animationFrame
+        );
+
+
+        timerStart =
+            performance.now();
+
 
         function animate(now) {
-            const elapsed = now - timerStart;
-            const progress = Math.min(elapsed / REFRESH_INTERVAL, 1);
 
-            document.getElementById("timerBar").style.transform =
-                `scaleX(${1 - progress})`;
+            const elapsed =
+                now - timerStart;
 
-            if (progress < 1) {
-                animationFrame = requestAnimationFrame(animate);
+
+            const progress =
+                Math.min(
+                    elapsed /
+                    REFRESH_INTERVAL,
+                    1
+                );
+
+
+            document.getElementById(
+                "timerBar"
+            ).style.transform =
+                "scaleX(" +
+                (1 - progress) +
+                ")";
+
+
+            if (
+                progress < 1
+            ) {
+
+                animationFrame =
+                    requestAnimationFrame(
+                        animate
+                    );
+
             }
+
         }
 
-        animationFrame = requestAnimationFrame(animate);
 
-        refreshTimer = setTimeout(checkAll, REFRESH_INTERVAL);
+        animationFrame =
+            requestAnimationFrame(
+                animate
+            );
+
+
+        refreshTimer =
+            setTimeout(
+                checkAll,
+                REFRESH_INTERVAL
+            );
+
     }
 
 
-    document
-        .getElementById("refreshBtn")
-        .addEventListener("click", checkAll);
+    /* =========================
+       MANUAL REFRESH
+    ========================= */
 
+    document
+        .getElementById(
+            "refreshBtn"
+        )
+        .addEventListener(
+            "click",
+            checkAll
+        );
+
+
+    /* =========================
+       START
+    ========================= */
 
     checkAll();
+
 </script>
 
 </body>
