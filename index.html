@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>VPN Monitor</title>
 
     <style>
@@ -13,38 +12,24 @@
             padding: 0;
         }
 
-        html,
         body {
-            min-height: 100%;
-        }
-
-        body {
-            font-family:
-                Inter,
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                sans-serif;
-
+            min-height: 100vh;
             background: #050505;
-            color: #ffffff;
+            color: #fff;
+            font-family: Inter, Arial, sans-serif;
             overflow-x: hidden;
         }
-
-        /* =========================
-           BACKGROUND
-        ========================= */
 
         .background {
             position: fixed;
             inset: 0;
+            z-index: 0;
             overflow: hidden;
             pointer-events: none;
-            z-index: 0;
             background:
                 radial-gradient(
                     circle at 50% -10%,
-                    rgba(255,255,255,0.08),
+                    rgba(255,255,255,.08),
                     transparent 35%
                 ),
                 #050505;
@@ -55,234 +40,170 @@
             width: 420px;
             height: 420px;
             border-radius: 50%;
-            filter: blur(100px);
-            opacity: 0.08;
+            filter: blur(110px);
+            opacity: .07;
             animation: float 12s ease-in-out infinite;
         }
 
         .orb.one {
+            left: -160px;
             top: -180px;
-            left: -100px;
-            background: #ffffff;
+            background: white;
         }
 
         .orb.two {
             right: -180px;
-            top: 25%;
-            background: #ffffff;
+            top: 30%;
+            background: white;
             animation-delay: -4s;
         }
 
         .orb.three {
             bottom: -220px;
-            left: 30%;
-            background: #ffffff;
+            left: 35%;
+            background: white;
             animation-delay: -8s;
         }
 
         @keyframes float {
-            0%,
-            100% {
-                transform: translate3d(0, 0, 0);
+            0%,100% {
+                transform: translate(0,0);
             }
-
             50% {
-                transform: translate3d(30px, -25px, 0);
+                transform: translate(30px,-25px);
             }
         }
 
         .grid {
             position: absolute;
             inset: 0;
-
             background-image:
                 linear-gradient(
-                    rgba(255,255,255,0.025) 1px,
+                    rgba(255,255,255,.025) 1px,
                     transparent 1px
                 ),
                 linear-gradient(
                     90deg,
-                    rgba(255,255,255,0.025) 1px,
+                    rgba(255,255,255,.025) 1px,
                     transparent 1px
                 );
-
             background-size: 50px 50px;
-
-            mask-image:
-                linear-gradient(
-                    to bottom,
-                    black,
-                    transparent 85%
-                );
+            mask-image: linear-gradient(
+                to bottom,
+                black,
+                transparent 90%
+            );
         }
-
-        /* =========================
-           APP
-        ========================= */
 
         .app {
             position: relative;
             z-index: 1;
-
-            width: min(1100px, calc(100% - 32px));
-            margin: 0 auto;
-
-            padding: 70px 0 50px;
+            width: min(1100px, calc(100% - 30px));
+            margin: auto;
+            padding: 65px 0 50px;
         }
-
-        /* =========================
-           HEADER
-        ========================= */
 
         header {
             text-align: center;
-            margin-bottom: 45px;
+            margin-bottom: 42px;
         }
 
         .badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-
             padding: 7px 12px;
-
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 999px;
-
-            background: rgba(255,255,255,0.035);
-
-            color: #aaa;
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-
             margin-bottom: 18px;
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 999px;
+            background: rgba(255,255,255,.035);
+            color: #aaa;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .08em;
         }
 
         .badge-dot {
             width: 7px;
             height: 7px;
-
             border-radius: 50%;
-            background: #ffffff;
-
-            box-shadow:
-                0 0 10px rgba(255,255,255,0.7);
-
+            background: white;
+            box-shadow: 0 0 10px rgba(255,255,255,.7);
             animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
-            0% {
+            0%,100% {
                 opacity: 1;
                 transform: scale(1);
             }
-
             50% {
-                opacity: 0.35;
-                transform: scale(0.75);
-            }
-
-            100% {
-                opacity: 1;
-                transform: scale(1);
+                opacity: .35;
+                transform: scale(.75);
             }
         }
 
         h1 {
-            font-size: clamp(38px, 7vw, 68px);
+            font-size: clamp(40px, 7vw, 68px);
             line-height: 1;
             font-weight: 800;
-            letter-spacing: -0.055em;
-
-            background:
-                linear-gradient(
-                    180deg,
-                    #ffffff 0%,
-                    #999999 100%
-                );
-
+            letter-spacing: -.055em;
+            background: linear-gradient(
+                180deg,
+                #fff,
+                #999
+            );
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
 
         .subtitle {
-            margin-top: 17px;
-
+            margin-top: 16px;
             color: #777;
-            font-size: 15px;
+            font-size: 14px;
         }
-
-        /* =========================
-           SERVERS
-        ========================= */
 
         .servers {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 18px;
         }
 
         .card {
-            position: relative;
-
             padding: 26px;
-
-            border: 1px solid rgba(255,255,255,0.09);
+            border: 1px solid rgba(255,255,255,.09);
             border-radius: 22px;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(255,255,255,0.065),
-                    rgba(255,255,255,0.025)
-                );
-
+            background: linear-gradient(
+                145deg,
+                rgba(255,255,255,.065),
+                rgba(255,255,255,.025)
+            );
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
-
-            box-shadow:
-                0 20px 60px rgba(0,0,0,0.35);
-
-            transition:
-                transform 0.3s ease,
-                border-color 0.3s ease,
-                background 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0,0,0,.35);
+            transition: .3s ease;
         }
 
         .card:hover {
             transform: translateY(-4px);
-
-            border-color:
-                rgba(255,255,255,0.17);
-
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(255,255,255,0.08),
-                    rgba(255,255,255,0.03)
-                );
+            border-color: rgba(255,255,255,.17);
         }
 
         .card-top {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-
             gap: 15px;
         }
 
         .server-name {
             font-size: 23px;
             font-weight: 750;
-            letter-spacing: -0.025em;
         }
 
         .server-location {
             margin-top: 5px;
-
             color: #777;
             font-size: 13px;
         }
@@ -291,30 +212,21 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-
             padding: 7px 10px;
-
             border-radius: 999px;
-
-            background: rgba(255,255,255,0.045);
-
-            color: #999;
-
-            font-size: 11px;
+            background: rgba(255,255,255,.045);
+            color: #888;
+            font-size: 10px;
             font-weight: 700;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-
+            letter-spacing: .06em;
             white-space: nowrap;
         }
 
         .status-dot {
             width: 7px;
             height: 7px;
-
             border-radius: 50%;
-
-            background: #777;
+            background: #666;
         }
 
         .status.online {
@@ -323,10 +235,7 @@
 
         .status.online .status-dot {
             background: #fff;
-
-            box-shadow:
-                0 0 12px rgba(255,255,255,0.8);
-
+            box-shadow: 0 0 12px rgba(255,255,255,.8);
             animation: pulse 1.8s infinite;
         }
 
@@ -344,43 +253,34 @@
 
         .status.checking .status-dot {
             background: #aaa;
-
-            animation:
-                blink 0.8s ease-in-out infinite;
+            animation: blink .8s infinite;
         }
 
         @keyframes blink {
-            0%,
-            100% {
-                opacity: 0.25;
+            0%,100% {
+                opacity: .25;
             }
-
             50% {
                 opacity: 1;
             }
         }
 
-        /* =========================
-           LATENCY
-        ========================= */
-
         .latency {
-            margin-top: 35px;
+            margin-top: 34px;
         }
 
         .latency-label {
             color: #666;
-            font-size: 11px;
+            font-size: 10px;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
+            letter-spacing: .1em;
         }
 
         .latency-value {
             margin-top: 5px;
-
             font-size: 37px;
             font-weight: 750;
-            letter-spacing: -0.04em;
+            letter-spacing: -.04em;
         }
 
         .latency-value span {
@@ -390,80 +290,51 @@
             letter-spacing: 0;
         }
 
-        /* =========================
-           ENDPOINT
-        ========================= */
-
         .endpoint {
-            margin-top: 25px;
+            margin-top: 24px;
             padding-top: 18px;
-
-            border-top: 1px solid rgba(255,255,255,0.07);
-
+            border-top: 1px solid rgba(255,255,255,.07);
             color: #666;
             font-family: monospace;
             font-size: 12px;
         }
 
-        /* =========================
-           UPTIME
-        ========================= */
-
         .uptime-box {
-            margin-top: 18px;
-
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3,1fr);
             gap: 1px;
-
+            margin-top: 18px;
             overflow: hidden;
-
-            border:
-                1px solid rgba(255,255,255,0.07);
-
+            border: 1px solid rgba(255,255,255,.07);
             border-radius: 18px;
-
-            background:
-                rgba(255,255,255,0.07);
+            background: rgba(255,255,255,.07);
         }
 
         .uptime-item {
-            padding: 19px 16px;
-
-            background:
-                rgba(8,8,8,0.85);
+            padding: 18px 15px;
+            background: rgba(8,8,8,.85);
         }
 
         .uptime-label {
             color: #666;
-
             font-size: 10px;
             font-weight: 600;
-
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: .08em;
         }
 
         .uptime-value {
             margin-top: 7px;
-
             color: #eee;
-
             font-size: 17px;
             font-weight: 700;
         }
-
-        /* =========================
-           CONTROLS
-        ========================= */
 
         .controls {
             display: flex;
             justify-content: center;
             align-items: center;
-
             gap: 14px;
-
             margin-top: 28px;
         }
 
@@ -472,54 +343,38 @@
             align-items: center;
             justify-content: center;
             gap: 9px;
-
             padding: 12px 18px;
-
-            border:
-                1px solid rgba(255,255,255,0.12);
-
+            border: 1px solid rgba(255,255,255,.12);
             border-radius: 12px;
-
-            background:
-                rgba(255,255,255,0.055);
-
+            background: rgba(255,255,255,.055);
             color: #eee;
-
             font-size: 13px;
             font-weight: 650;
-
             cursor: pointer;
-
-            transition:
-                background 0.2s ease,
-                transform 0.2s ease,
-                border-color 0.2s ease;
+            transition: .2s ease;
         }
 
         .refresh-button:hover {
-            background:
-                rgba(255,255,255,0.09);
-
-            border-color:
-                rgba(255,255,255,0.2);
+            background: rgba(255,255,255,.09);
+            border-color: rgba(255,255,255,.2);
         }
 
         .refresh-button:active {
-            transform: scale(0.97);
+            transform: scale(.97);
+        }
+
+        .refresh-button:disabled {
+            opacity: .6;
+            cursor: wait;
         }
 
         .refresh-icon {
             width: 15px;
             height: 15px;
-
-            display: block;
-
-            transition:
-                transform 0.5s ease;
         }
 
         .refresh-button.loading .refresh-icon {
-            animation: rotate 0.8s linear infinite;
+            animation: rotate .8s linear infinite;
         }
 
         @keyframes rotate {
@@ -533,26 +388,15 @@
             font-size: 12px;
         }
 
-        /* =========================
-           LAST UPDATE
-        ========================= */
-
         .last-update {
             margin-top: 18px;
-
             text-align: center;
-
             color: #4f4f4f;
             font-size: 11px;
         }
 
-        /* =========================
-           MOBILE
-        ========================= */
-
         @media (max-width: 700px) {
             .app {
-                width: min(100% - 20px, 600px);
                 padding-top: 45px;
             }
 
@@ -568,10 +412,6 @@
                 grid-template-columns: 1fr;
             }
 
-            .uptime-item {
-                padding: 14px 16px;
-            }
-
             .controls {
                 flex-direction: column;
             }
@@ -581,776 +421,705 @@
 
 <body>
 
-    <!-- BACKGROUND -->
-    <div class="background">
-        <div class="orb one"></div>
-        <div class="orb two"></div>
-        <div class="orb three"></div>
-        <div class="grid"></div>
+<div class="background">
+    <div class="orb one"></div>
+    <div class="orb two"></div>
+    <div class="orb three"></div>
+    <div class="grid"></div>
+</div>
+
+<main class="app">
+
+    <header>
+        <div class="badge">
+            <span class="badge-dot"></span>
+            VPN MONITOR
+        </div>
+
+        <h1>Server Status</h1>
+
+        <p class="subtitle">
+            Мониторинг доступности VPN-серверов
+        </p>
+    </header>
+
+
+    <section class="servers">
+
+        <!-- SWITZERLAND -->
+
+        <article class="card">
+
+            <div class="card-top">
+
+                <div>
+                    <div class="server-name">
+                        Switzerland
+                    </div>
+
+                    <div class="server-location">
+                        🇨🇭 Zurich
+                    </div>
+                </div>
+
+                <div
+                    class="status checking"
+                    id="status-ch"
+                >
+                    <span class="status-dot"></span>
+                    <span class="status-text">
+                        Проверка
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="latency">
+
+                <div class="latency-label">
+                    TCP Latency
+                </div>
+
+                <div
+                    class="latency-value"
+                    id="latency-ch"
+                >
+                    —
+                    <span>ms</span>
+                </div>
+
+            </div>
+
+            <div class="endpoint">
+                31.76.4.168:25558
+            </div>
+
+            <div class="uptime-box">
+
+                <div class="uptime-item">
+                    <div class="uptime-label">
+                        Uptime
+                    </div>
+
+                    <div
+                        class="uptime-value"
+                        id="uptime-ch"
+                    >
+                        —
+                    </div>
+                </div>
+
+                <div class="uptime-item">
+                    <div class="uptime-label">
+                        Стабилен
+                    </div>
+
+                    <div
+                        class="uptime-value"
+                        id="stable-ch"
+                    >
+                        —
+                    </div>
+                </div>
+
+                <div class="uptime-item">
+                    <div class="uptime-label">
+                        Сбоев
+                    </div>
+
+                    <div
+                        class="uptime-value"
+                        id="incidents-ch"
+                    >
+                        —
+                    </div>
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- POLAND -->
+
+        <article class="card">
+
+            <div class="card-top">
+
+                <div>
+                    <div class="server-name">
+                        Poland
+                    </div>
+
+                    <div class="server-location">
+                        🇵🇱 Warsaw
+                    </div>
+                </div>
+
+                <div
+                    class="status checking"
+                    id="status-pl"
+                >
+                    <span class="status-dot"></span>
+                    <span class="status-text">
+                        Проверка
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="latency">
+
+                <div class="latency-label">
+                    TCP Latency
+                </div>
+
+                <div
+                    class="latency-value"
+                    id="latency-pl"
+                >
+                    —
+                    <span>ms</span>
+                </div>
+
+            </div>
+
+            <div class="endpoint">
+                2.26.255.84:27489
+            </div>
+
+            <div class="uptime-box">
+
+                <div class="uptime-item">
+                    <div class="uptime-label">
+                        Uptime
+                    </div>
+
+                    <div
+                        class="uptime-value"
+                        id="uptime-pl"
+                    >
+                        —
+                    </div>
+                </div>
+
+                <div class="uptime-item">
+                    <div class="uptime-label">
+                        Стабилен
+                    </div>
+
+                    <div
+                        class="uptime-value"
+                        id="stable-pl"
+                    >
+                        —
+                    </div>
+                </div>
+
+                <div class="uptime-item">
+                    <div class="uptime-label">
+                        Сбоев
+                    </div>
+
+                    <div
+                        class="uptime-value"
+                        id="incidents-pl"
+                    >
+                        —
+                    </div>
+                </div>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <div class="controls">
+
+        <button
+            class="refresh-button"
+            id="refreshButton"
+            type="button"
+        >
+
+            <svg
+                class="refresh-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            >
+                <path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 5v4h4"/>
+                <path d="M4 13a8.1 8.1 0 0 0 15.5 2M20 19v-4h-4"/>
+            </svg>
+
+            Обновить
+
+        </button>
+
+        <div class="auto-refresh">
+            Автообновление: 30 сек
+        </div>
+
     </div>
 
 
-    <main class="app">
+    <div class="last-update">
+        Последнее обновление:
+        <span id="lastUpdate">—</span>
+    </div>
 
-        <!-- HEADER -->
-        <header>
+</main>
 
-            <div class="badge">
-                <span class="badge-dot"></span>
-                VPN MONITOR
-            </div>
 
-            <h1>Server Status</h1>
+<script>
 
-            <p class="subtitle">
-                Мониторинг доступности VPN-серверов в реальном времени
-            </p>
+    /*
+     * ВАЖНО:
+     * Здесь нет server.key.
+     * Запросы идут напрямую:
+     *
+     * /api/check?server=ch
+     * /api/check?server=pl
+     */
 
-        </header>
 
+    const REFRESH_INTERVAL = 30000;
 
-        <!-- SERVERS -->
-        <section class="servers">
+    let refreshTimer = null;
 
 
-            <!-- SWITZERLAND -->
-            <article class="card" id="server-ch">
+    // =========================
+    // STATUS
+    // =========================
 
-                <div class="card-top">
+    function setStatus(server, status, latency = null) {
 
-                    <div>
-                        <div class="server-name">
-                            Switzerland
-                        </div>
-
-                        <div class="server-location">
-                            🇨🇭 Zurich
-                        </div>
-                    </div>
-
-                    <div
-                        class="status checking"
-                        data-status="ch"
-                    >
-                        <span class="status-dot"></span>
-                        <span class="status-text">
-                            Проверка
-                        </span>
-                    </div>
-
-                </div>
-
-
-                <div class="latency">
-
-                    <div class="latency-label">
-                        TCP Latency
-                    </div>
-
-                    <div
-                        class="latency-value"
-                        data-latency="ch"
-                    >
-                        —
-                        <span>ms</span>
-                    </div>
-
-                </div>
-
-
-                <div class="endpoint">
-                    31.76.4.168:25558
-                </div>
-
-
-                <div class="uptime-box">
-
-                    <div class="uptime-item">
-
-                        <div class="uptime-label">
-                            Uptime
-                        </div>
-
-                        <div
-                            class="uptime-value"
-                            data-uptime="ch"
-                        >
-                            —
-                        </div>
-
-                    </div>
-
-
-                    <div class="uptime-item">
-
-                        <div class="uptime-label">
-                            Стабилен
-                        </div>
-
-                        <div
-                            class="uptime-value"
-                            data-stable="ch"
-                        >
-                            —
-                        </div>
-
-                    </div>
-
-
-                    <div class="uptime-item">
-
-                        <div class="uptime-label">
-                            Сбоев
-                        </div>
-
-                        <div
-                            class="uptime-value"
-                            data-incidents="ch"
-                        >
-                            —
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </article>
-
-
-
-            <!-- POLAND -->
-            <article class="card" id="server-pl">
-
-                <div class="card-top">
-
-                    <div>
-                        <div class="server-name">
-                            Poland
-                        </div>
-
-                        <div class="server-location">
-                            🇵🇱 Warsaw
-                        </div>
-                    </div>
-
-                    <div
-                        class="status checking"
-                        data-status="pl"
-                    >
-                        <span class="status-dot"></span>
-                        <span class="status-text">
-                            Проверка
-                        </span>
-                    </div>
-
-                </div>
-
-
-                <div class="latency">
-
-                    <div class="latency-label">
-                        TCP Latency
-                    </div>
-
-                    <div
-                        class="latency-value"
-                        data-latency="pl"
-                    >
-                        —
-                        <span>ms</span>
-                    </div>
-
-                </div>
-
-
-                <div class="endpoint">
-                    2.26.255.84:27489
-                </div>
-
-
-                <div class="uptime-box">
-
-                    <div class="uptime-item">
-
-                        <div class="uptime-label">
-                            Uptime
-                        </div>
-
-                        <div
-                            class="uptime-value"
-                            data-uptime="pl"
-                        >
-                            —
-                        </div>
-
-                    </div>
-
-
-                    <div class="uptime-item">
-
-                        <div class="uptime-label">
-                            Стабилен
-                        </div>
-
-                        <div
-                            class="uptime-value"
-                            data-stable="pl"
-                        >
-                            —
-                        </div>
-
-                    </div>
-
-
-                    <div class="uptime-item">
-
-                        <div class="uptime-label">
-                            Сбоев
-                        </div>
-
-                        <div
-                            class="uptime-value"
-                            data-incidents="pl"
-                        >
-                            —
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </article>
-
-        </section>
-
-
-        <!-- CONTROLS -->
-        <div class="controls">
-
-            <button
-                class="refresh-button"
-                id="refreshButton"
-                type="button"
-            >
-
-                <svg
-                    class="refresh-icon"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                >
-                    <path
-                        d="M20 11a8.1 8.1 0 0 0-15.5-2M4 5v4h4"
-                    />
-
-                    <path
-                        d="M4 13a8.1 8.1 0 0 0 15.5 2M20 19v-4h-4"
-                    />
-                </svg>
-
-                Обновить
-
-            </button>
-
-            <div class="auto-refresh">
-                Автообновление: 30 сек
-            </div>
-
-        </div>
-
-
-        <!-- LAST UPDATE -->
-        <div class="last-update">
-            Последнее обновление:
-            <span id="lastUpdate">
-                —
-            </span>
-        </div>
-
-    </main>
-
-
-
-    <script>
-
-        /* =========================
-           CONFIG
-        ========================= */
-
-        const SERVERS = [
-            {
-                id: "server-ch",
-                key: "ch"
-            },
-
-            {
-                id: "server-pl",
-                key: "pl"
-            }
-        ];
-
-        const REFRESH_INTERVAL = 30000;
-
-        let refreshTimer = null;
-
-
-        /* =========================
-           DOM HELPERS
-        ========================= */
-
-        function getStatusElement(key) {
-            return document.querySelector(
-                `[data-status="${key}"]`
-            );
-        }
-
-        function getLatencyElement(key) {
-            return document.querySelector(
-                `[data-latency="${key}"]`
-            );
-        }
-
-
-        /* =========================
-           SET STATUS
-        ========================= */
-
-        function setStatus(
-            server,
-            status,
-            latency = null
-        ) {
-
-            const statusElement =
-                getStatusElement(server.key);
-
-            const latencyElement =
-                getLatencyElement(server.key);
-
-            if (!statusElement) return;
-
-
-            statusElement.classList.remove(
-                "online",
-                "offline",
-                "checking"
+        const statusElement =
+            document.getElementById(
+                `status-${server}`
             );
 
-            statusElement.classList.add(status);
+        const latencyElement =
+            document.getElementById(
+                `latency-${server}`
+            );
 
 
-            const text =
-                statusElement.querySelector(
-                    ".status-text"
-                );
+        if (!statusElement) return;
 
 
-            if (status === "online") {
+        statusElement.classList.remove(
+            "online",
+            "offline",
+            "checking"
+        );
 
-                if (text) {
-                    text.textContent = "ONLINE";
-                }
-
-                if (
-                    latency !== null &&
-                    latency !== undefined
-                ) {
-
-                    latencyElement.innerHTML =
-                        `${Number(latency).toFixed(0)}
-                        <span>ms</span>`;
-                }
-
-            }
-
-            else if (status === "offline") {
-
-                if (text) {
-                    text.textContent = "OFFLINE";
-                }
-
-                if (latencyElement) {
-                    latencyElement.innerHTML =
-                        `—
-                        <span>ms</span>`;
-                }
-
-            }
-
-            else {
-
-                if (text) {
-                    text.textContent = "Проверка";
-                }
-
-                if (latencyElement) {
-                    latencyElement.innerHTML =
-                        `—
-                        <span>ms</span>`;
-                }
-
-            }
-        }
+        statusElement.classList.add(status);
 
 
-        /* =========================
-           CHECK SERVER
-        ========================= */
-
-        async function checkServer(server) {
-
-            try {
-
-                setStatus(
-                    server,
-                    "checking"
-                );
+        const text =
+            statusElement.querySelector(
+                ".status-text"
+            );
 
 
-                const response =
-                    await fetch(
-                        `/api/check?server=${encodeURIComponent(server.key)}&t=${Date.now()}`,
-                        {
-                            method: "GET",
-                            cache: "no-store"
-                        }
-                    );
+        if (status === "online") {
 
+            text.textContent = "ONLINE";
 
-                let data;
+            if (
+                latency !== null &&
+                latency !== undefined
+            ) {
 
-                try {
-                    data = await response.json();
-                }
-
-                catch {
-                    throw new Error(
-                        `HTTP ${response.status}`
-                    );
-                }
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        data.error ||
-                        `HTTP ${response.status}`
-                    );
-
-                }
-
-
-                setStatus(
-                    server,
-                    data.status,
-                    data.response_time_ms
-                );
-
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    "Server check error:",
-                    error
-                );
-
-                setStatus(
-                    server,
-                    "offline"
-                );
+                latencyElement.innerHTML =
+                    `${Number(latency).toFixed(0)}
+                    <span>ms</span>`;
 
             }
 
         }
 
+        else if (status === "offline") {
 
-        /* =========================
-           FORMAT TIME
-        ========================= */
+            text.textContent = "OFFLINE";
 
-        function formatDuration(seconds) {
-
-            seconds =
-                Math.max(
-                    0,
-                    Math.floor(
-                        Number(seconds) || 0
-                    )
-                );
-
-
-            const days =
-                Math.floor(
-                    seconds / 86400
-                );
-
-            seconds %= 86400;
-
-
-            const hours =
-                Math.floor(
-                    seconds / 3600
-                );
-
-            seconds %= 3600;
-
-
-            const minutes =
-                Math.floor(
-                    seconds / 60
-                );
-
-
-            if (days > 0) {
-                return `${days}д ${hours}ч`;
-            }
-
-            if (hours > 0) {
-                return `${hours}ч ${minutes}м`;
-            }
-
-            return `${minutes}м`;
-        }
-
-
-        /* =========================
-           LOAD UPTIME
-        ========================= */
-
-        async function loadUptime() {
-
-            try {
-
-                const response =
-                    await fetch(
-                        `/api/status?t=${Date.now()}`,
-                        {
-                            method: "GET",
-                            cache: "no-store"
-                        }
-                    );
-
-
-                if (!response.ok) {
-                    throw new Error(
-                        `HTTP ${response.status}`
-                    );
-                }
-
-
-                const data =
-                    await response.json();
-
-
-                if (
-                    !data ||
-                    !data.servers
-                ) {
-                    return;
-                }
-
-
-                for (
-                    const server of SERVERS
-                ) {
-
-                    const stats =
-                        data.servers[
-                            server.key
-                        ];
-
-
-                    if (!stats) {
-                        continue;
-                    }
-
-
-                    const uptime =
-                        document.querySelector(
-                            `[data-uptime="${server.key}"]`
-                        );
-
-                    const stable =
-                        document.querySelector(
-                            `[data-stable="${server.key}"]`
-                        );
-
-                    const incidents =
-                        document.querySelector(
-                            `[data-incidents="${server.key}"]`
-                        );
-
-
-                    if (uptime) {
-
-                        uptime.textContent =
-                            stats.uptime_percent !== null
-                                ? `${stats.uptime_percent}%`
-                                : "—";
-
-                    }
-
-
-                    if (stable) {
-
-                        stable.textContent =
-                            stats.stable_text ||
-                            formatDuration(
-                                stats.stable_seconds
-                            ) ||
-                            "—";
-
-                    }
-
-
-                    if (incidents) {
-
-                        incidents.textContent =
-                            stats.incidents ??
-                            0;
-
-                    }
-
-                }
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    "Uptime error:",
-                    error
-                );
-
-            }
+            latencyElement.innerHTML =
+                `—
+                <span>ms</span>`;
 
         }
 
+        else {
 
-        /* =========================
-           UPDATE TIME
-        ========================= */
+            text.textContent = "Проверка";
 
-        function updateTime() {
+            latencyElement.innerHTML =
+                `—
+                <span>ms</span>`;
 
-            const element =
-                document.getElementById(
-                    "lastUpdate"
-                );
-
-
-            const now =
-                new Date();
+        }
+    }
 
 
-            element.textContent =
-                now.toLocaleTimeString(
-                    "ru-RU",
+    // =========================
+    // CHECK CH
+    // =========================
+
+    async function checkCH() {
+
+        try {
+
+            setStatus("ch", "checking");
+
+
+            const response =
+                await fetch(
+                    `/api/check?server=ch&_=${Date.now()}`,
                     {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        second: "2-digit"
+                        cache: "no-store"
                     }
                 );
+
+
+            const data =
+                await response.json();
+
+
+            console.log(
+                "CH:",
+                data
+            );
+
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error ||
+                    `HTTP ${response.status}`
+                );
+            }
+
+
+            setStatus(
+                "ch",
+                data.status,
+                data.response_time_ms
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "CH check error:",
+                error
+            );
+
+            setStatus(
+                "ch",
+                "offline"
+            );
+
+        }
+    }
+
+
+    // =========================
+    // CHECK PL
+    // =========================
+
+    async function checkPL() {
+
+        try {
+
+            setStatus("pl", "checking");
+
+
+            const response =
+                await fetch(
+                    `/api/check?server=pl&_=${Date.now()}`,
+                    {
+                        cache: "no-store"
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            console.log(
+                "PL:",
+                data
+            );
+
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error ||
+                    `HTTP ${response.status}`
+                );
+            }
+
+
+            setStatus(
+                "pl",
+                data.status,
+                data.response_time_ms
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "PL check error:",
+                error
+            );
+
+            setStatus(
+                "pl",
+                "offline"
+            );
+
+        }
+    }
+
+
+    // =========================
+    // UPTIME
+    // =========================
+
+    async function loadUptime() {
+
+        try {
+
+            const response =
+                await fetch(
+                    `/api/status?_=${Date.now()}`,
+                    {
+                        cache: "no-store"
+                    }
+                );
+
+
+            if (!response.ok) {
+                throw new Error(
+                    `HTTP ${response.status}`
+                );
+            }
+
+
+            const data =
+                await response.json();
+
+
+            console.log(
+                "UPTIME:",
+                data
+            );
+
+
+            if (
+                !data ||
+                !data.servers
+            ) {
+                return;
+            }
+
+
+            updateUptime(
+                "ch",
+                data.servers.ch
+            );
+
+            updateUptime(
+                "pl",
+                data.servers.pl
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Uptime error:",
+                error
+            );
+
+        }
+    }
+
+
+    function updateUptime(
+        server,
+        stats
+    ) {
+
+        if (!stats) return;
+
+
+        const uptime =
+            document.getElementById(
+                `uptime-${server}`
+            );
+
+        const stable =
+            document.getElementById(
+                `stable-${server}`
+            );
+
+        const incidents =
+            document.getElementById(
+                `incidents-${server}`
+            );
+
+
+        if (uptime) {
+
+            uptime.textContent =
+                stats.uptime_percent !== null &&
+                stats.uptime_percent !== undefined
+                    ? `${stats.uptime_percent}%`
+                    : "—";
 
         }
 
 
-        /* =========================
-           CHECK ALL
-        ========================= */
+        if (stable) {
 
-        async function checkAll() {
+            stable.textContent =
+                stats.stable_text ||
+                "—";
 
-            const button =
-                document.getElementById(
-                    "refreshButton"
-                );
+        }
 
 
-            button.classList.add(
+        if (incidents) {
+
+            incidents.textContent =
+                stats.incidents ?? 0;
+
+        }
+
+    }
+
+
+    // =========================
+    // TIME
+    // =========================
+
+    function updateTime() {
+
+        const element =
+            document.getElementById(
+                "lastUpdate"
+            );
+
+
+        element.textContent =
+            new Date().toLocaleTimeString(
+                "ru-RU",
+                {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit"
+                }
+            );
+
+    }
+
+
+    // =========================
+    // FULL CHECK
+    // =========================
+
+    async function checkAll() {
+
+        const button =
+            document.getElementById(
+                "refreshButton"
+            );
+
+
+        button.classList.add(
+            "loading"
+        );
+
+        button.disabled = true;
+
+
+        try {
+
+            await Promise.all([
+                checkCH(),
+                checkPL()
+            ]);
+
+
+            await loadUptime();
+
+            updateTime();
+
+        }
+
+        finally {
+
+            button.classList.remove(
                 "loading"
             );
 
-            button.disabled = true;
-
-
-            try {
-
-                await Promise.all(
-                    SERVERS.map(
-                        server =>
-                            checkServer(server)
-                    )
-                );
-
-
-                await loadUptime();
-
-                updateTime();
-
-            }
-
-            finally {
-
-                button.classList.remove(
-                    "loading"
-                );
-
-                button.disabled = false;
-
-            }
-
-
-            restartAutoRefresh();
+            button.disabled = false;
 
         }
 
 
-        /* =========================
-           AUTO REFRESH
-        ========================= */
+        restartAutoRefresh();
 
-        function restartAutoRefresh() {
-
-            if (refreshTimer) {
-                clearTimeout(refreshTimer);
-            }
+    }
 
 
-            refreshTimer =
-                setTimeout(
-                    checkAll,
-                    REFRESH_INTERVAL
-                );
+    // =========================
+    // AUTO REFRESH
+    // =========================
 
+    function restartAutoRefresh() {
+
+        if (refreshTimer) {
+            clearTimeout(refreshTimer);
         }
 
 
-        /* =========================
-           BUTTON
-        ========================= */
-
-        document
-            .getElementById("refreshButton")
-            .addEventListener(
-                "click",
-                checkAll
+        refreshTimer =
+            setTimeout(
+                checkAll,
+                REFRESH_INTERVAL
             );
 
+    }
 
-        /* =========================
-           INITIAL LOAD
-        ========================= */
 
-        checkAll();
+    // =========================
+    // BUTTON
+    // =========================
 
-    </script>
+    document
+        .getElementById("refreshButton")
+        .addEventListener(
+            "click",
+            checkAll
+        );
+
+
+    // =========================
+    // START
+    // =========================
+
+    checkAll();
+
+</script>
 
 </body>
 </html>
