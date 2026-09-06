@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VPN Status Monitor</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            color: #fff;
+            background:
+                radial-gradient(circle at 15% 10%, rgba(70,100,255,.18), transparent 35%),
+                radial-gradient(circle at 85% 90%, rgba(0,220,180,.12), transparent 35%),
+                #070a12;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1050px;
+            margin: auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 45px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.1);
+            color: #aaa;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+        }
+
+        .badge-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #39ff88;
+            box-shadow: 0 0 12px #39ff88;
+        }
+
+        h1 {
+            margin: 20px 0 0;
+            font-size: clamp(42px, 7vw, 72px);
+            letter-spacing: -3px;
+        }
+
+        .subtitle {
+            color: #858b9b;
+            margin-top: 15px;
+        }
+
+        .servers {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+        }
+
+        .card {
+            padding: 28px;
+            border-radius: 24px;
+            background: rgba(17,21,34,.85);
+            border: 1px solid rgba(255,255,255,.08);
+            box-shadow: 0 25px 70px rgba(0,0,0,.35);
+            backdrop-filter: blur(18px);
+            transition: .25s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255,255,255,.16);
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .country {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .flag {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            background: rgba(255,255,255,.06);
+            font-size: 27px;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 21px;
+        }
+
+        .country p {
+            margin: 5px 0 0;
+            color: #737a8d;
+            font-size: 13px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 11px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.05);
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #777;
+        }
+
+        .checking {
+            color: #ffd75a;
+        }
+
+        .checking .status-dot {
+            background: #ffd75a;
+            animation: pulse 1s infinite;
+        }
+
+        .online {
+            color: #49f59a;
+        }
+
+        .online .status-dot {
+            background: #49f59a;
+            box-shadow: 0 0 12px #49f59a;
+        }
+
+        .offline {
+            color: #ff5964;
+        }
+
+        .offline .status-dot {
+            background: #ff5964;
+            box-shadow: 0 0 12px #ff5964;
+        }
+
+        @keyframes pulse {
+            50% {
+                opacity: .25;
+            }
+        }
+
+        .endpoint {
+            margin-top: 30px;
+            padding: 16px;
+            border-radius: 14px;
+            background: rgba(0,0,0,.18);
+            border: 1px solid rgba(255,255,255,.05);
+        }
+
+        .label {
+            color: #686f81;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .endpoint-value {
+            margin-top: 7px;
+            font-family: monospace;
+            font-size: 15px;
+            color: #d9deeb;
+        }
+
+        .latency {
+            margin-top: 24px;
+            font-size: 29px;
+            font-weight: 800;
+        }
+
+        .latency small {
+            font-size: 13px;
+            color: #777e90;
+            font-weight: normal;
+        }
+
+        .refresh {
+            display: flex;
+            justify-content: center;
+            margin-top: 35px;
+        }
+
+        button {
+            cursor: pointer;
+            padding: 13px 22px;
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 12px;
+            background: rgba(255,255,255,.07);
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: rgba(255,255,255,.12);
+        }
+
+        button:disabled {
+            opacity: .5;
+            cursor: default;
+        }
+
+        .updated {
+            text-align: center;
+            margin-top: 15px;
+            color: #555c6d;
+            font-size: 12px;
+        }
+
+        .error {
+            text-align: center;
+            margin-top: 18px;
+            color: #ff5964;
+            font-size: 12px;
+            min-height: 16px;
+        }
+
+        @media (max-width: 700px) {
+            .servers {
+                grid-template-columns: 1fr;
+            }
+
+            body {
+                padding: 25px 15px;
+            }
+
+            .card {
+                padding: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <div class="badge">
+            <span class="badge-dot"></span>
+            LIVE MONITORING
+        </div>
+
+        <h1>VPN Status</h1>
+
+        <div class="subtitle">
+            Проверка доступности VPN-серверов
+        </div>
+    </header>
+
+
+    <div class="servers">
+
+        <!-- SWITZERLAND -->
+
+        <div class="card">
+
+            <div class="top">
+
+                <div class="country">
+
+                    <div class="flag">🇨🇭</div>
+
+                    <div>
+                        <h2>Switzerland</h2>
+                        <p>VPN Server</p>
+                    </div>
+
+                </div>
+
+                <div
+                    id="status-ch"
+                    class="status checking"
+                >
+                    <span class="status-dot"></span>
+                    CHECKING
+                </div>
+
+            </div>
+
+
+            <div class="endpoint">
+
+                <div class="label">
+                    Endpoint
+                </div>
+
+                <div class="endpoint-value">
+                    31.76.4.168:25558
+                </div>
+
+            </div>
+
+
+            <div class="label" style="margin-top:24px;">
+                TCP LATENCY
+            </div>
+
+            <div
+                id="latency-ch"
+                class="latency"
+            >
+                — <small>ms</small>
+            </div>
+
+        </div>
+
+
+        <!-- POLAND -->
+
+        <div class="card">
+
+            <div class="top">
+
+                <div class="country">
+
+                    <div class="flag">🇵🇱</div>
+
+                    <div>
+                        <h2>Poland</h2>
+                        <p>VPN Server</p>
+                    </div>
+
+                </div>
+
+                <div
+                    id="status-pl"
+                    class="status checking"
+                >
+                    <span class="status-dot"></span>
+                    CHECKING
+                </div>
+
+            </div>
+
+
+            <div class="endpoint">
+
+                <div class="label">
+                    Endpoint
+                </div>
+
+                <div class="endpoint-value">
+                    2.26.255.84:27489
+                </div>
+
+            </div>
+
+
+            <div class="label" style="margin-top:24px;">
+                TCP LATENCY
+            </div>
+
+            <div
+                id="latency-pl"
+                class="latency"
+            >
+                — <small>ms</small>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="refresh">
+        <button id="refresh">
+            Проверить сейчас
+        </button>
+    </div>
+
+    <div
+        id="updated"
+        class="updated"
+    >
+        Проверка...
+    </div>
+
+    <div
+        id="error"
+        class="error"
+    ></div>
+
+</div>
+
+
+<script>
+
+const SERVERS = [
+    {
+        id: "ch",
+        host: "31.76.4.168",
+        port: 25558
+    },
+    {
+        id: "pl",
+        host: "2.26.255.84",
+        port: 27489
+    }
+];
+
+
+function setChecking(server) {
+
+    const element =
+        document.getElementById(
+            "status-" + server.id
+        );
+
+    const latency =
+        document.getElementById(
+            "latency-" + server.id
+        );
+
+
+    element.className =
+        "status checking";
+
+    element.innerHTML = `
+        <span class="status-dot"></span>
+        CHECKING
+    `;
+
+    latency.innerHTML =
+        '— <small>ms</small>';
+}
+
+
+function setOnline(server, ms) {
+
+    const element =
+        document.getElementById(
+            "status-" + server.id
+        );
+
+    const latency =
+        document.getElementById(
+            "latency-" + server.id
+        );
+
+
+    element.className =
+        "status online";
+
+    element.innerHTML = `
+        <span class="status-dot"></span>
+        ONLINE
+    `;
+
+    latency.innerHTML =
+        `${Math.round(ms)} <small>ms</small>`;
+}
+
+
+function setOffline(server) {
+
+    const element =
+        document.getElementById(
+            "status-" + server.id
+        );
+
+    const latency =
+        document.getElementById(
+            "latency-" + server.id
+        );
+
+
+    element.className =
+        "status offline";
+
+    element.innerHTML = `
+        <span class="status-dot"></span>
+        OFFLINE
+    `;
+
+    latency.innerHTML =
+        '— <small>ms</small>';
+}
+
+
+async function checkServer(server) {
+
+    setChecking(server);
+
+
+    try {
+
+        const started =
+            performance.now();
+
+
+        const url =
+            "https://api.networktools.dev/v1/port-test" +
+            "?ip=" +
+            encodeURIComponent(server.host) +
+            "&port=" +
+            server.port;
+
+
+        const response =
+            await fetch(url, {
+                cache: "no-store"
+            });
+
+
+        if (!response.ok) {
+            throw new Error(
+                "HTTP " + response.status
+            );
+        }
+
+
+        const data =
+            await response.json();
+
+
+        console.log(
+            server.host,
+            data
+        );
+
+
+        if (
+            data.open === true ||
+            data.status === "open" ||
+            data.reachable === true
+        ) {
+
+            const latency =
+                data.latency_ms ??
+                data.response_time_ms ??
+                (performance.now() - started);
+
+
+            setOnline(
+                server,
+                latency
+            );
+
+        } else {
+
+            setOffline(server);
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Check failed:",
+            server,
+            error
+        );
+
+        setOffline(server);
+    }
+}
+
+
+async function checkAll() {
+
+    const button =
+        document.getElementById("refresh");
+
+    const error =
+        document.getElementById("error");
+
+
+    button.disabled = true;
+
+    error.textContent = "";
+
+
+    await Promise.all(
+        SERVERS.map(
+            server => checkServer(server)
+        )
+    );
+
+
+    document.getElementById(
+        "updated"
+    ).textContent =
+        "Последняя проверка: " +
+        new Date().toLocaleTimeString("ru-RU");
+
+
+    button.disabled = false;
+}
+
+
+document
+    .getElementById("refresh")
+    .addEventListener(
+        "click",
+        checkAll
+    );
+
+
+checkAll();
+
+
+setInterval(
+    checkAll,
+    30000
+);
+
+</script>
+
+</body>
+</html>
