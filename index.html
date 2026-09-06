@@ -1,611 +1,666 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>VPN Monitor</title>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #07080c;
+            --card: rgba(17, 18, 24, .72);
+            --border: rgba(255, 255, 255, .08);
+            --text: #f5f5f7;
+            --muted: #777b86;
+            --green: #35e98b;
+            --red: #ff4d5e;
+            --yellow: #ffc857;
+        }
+
+        html {
+            min-height: 100%;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
 
-<title>VPN Monitor</title>
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
 
-<style>
+            color: var(--text);
+            background: var(--bg);
 
-* {
-    box-sizing: border-box;
-}
+            overflow-x: hidden;
+        }
 
-html {
-    scroll-behavior: smooth;
-}
+        /* Background */
 
-body {
-    margin: 0;
-    min-height: 100vh;
+        .background {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
 
-    font-family:
-        Inter,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Arial,
-        sans-serif;
+        .glow {
+            position: absolute;
 
-    color: #f5f7ff;
+            width: 420px;
+            height: 420px;
 
-    background:
-        radial-gradient(
-            circle at 10% 0%,
-            rgba(77, 110, 255, .20),
-            transparent 32%
-        ),
-        radial-gradient(
-            circle at 90% 100%,
-            rgba(0, 220, 170, .12),
-            transparent 30%
-        ),
-        #070912;
-}
+            border-radius: 50%;
 
+            filter: blur(100px);
+            opacity: .08;
 
-/* GRID */
+            animation: float 12s ease-in-out infinite;
+        }
 
-body::before {
-    content: "";
+        .glow.one {
+            top: -180px;
+            left: -120px;
+            background: #526dff;
+        }
 
-    position: fixed;
-    inset: 0;
+        .glow.two {
+            right: -180px;
+            bottom: -180px;
+            background: #20d989;
+            animation-delay: -5s;
+        }
 
-    pointer-events: none;
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0);
+            }
 
-    background-image:
-        linear-gradient(
-            rgba(255,255,255,.025) 1px,
-            transparent 1px
-        ),
-        linear-gradient(
-            90deg,
-            rgba(255,255,255,.025) 1px,
-            transparent 1px
-        );
+            50% {
+                transform: translate(35px, 25px);
+            }
+        }
 
-    background-size: 50px 50px;
+        /* App */
 
-    mask-image:
-        linear-gradient(
-            to bottom,
-            black,
-            transparent 80%
-        );
-}
+        .app {
+            position: relative;
+            z-index: 1;
 
+            width: min(900px, calc(100% - 32px));
 
-/* CONTAINER */
+            margin: 0 auto;
 
-.container {
-    width: min(1100px, calc(100% - 36px));
-    margin: 0 auto;
-    padding: 55px 0 40px;
-}
+            padding: 70px 0 45px;
+        }
 
+        /* Header */
 
-/* HEADER */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
 
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
+            margin-bottom: 38px;
+        }
 
-    gap: 30px;
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
 
-    margin-bottom: 32px;
-}
+        .logo {
+            width: 40px;
+            height: 40px;
 
-.brand {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-.logo {
-    width: 48px;
-    height: 48px;
+            border-radius: 12px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+            background: rgba(255,255,255,.055);
+            border: 1px solid var(--border);
 
-    border-radius: 15px;
+            font-size: 17px;
 
-    background:
-        linear-gradient(
-            135deg,
-            rgba(92,117,255,.30),
-            rgba(0,220,180,.14)
-        );
+            box-shadow:
+                0 10px 35px rgba(0,0,0,.25);
+        }
 
-    border: 1px solid rgba(255,255,255,.10);
+        .brand-title {
+            font-size: 17px;
+            font-weight: 700;
 
-    box-shadow:
-        0 0 35px rgba(75,100,255,.15);
+            letter-spacing: -.3px;
+        }
 
-    font-size: 22px;
-}
+        .brand-subtitle {
+            margin-top: 3px;
 
-.eyebrow {
-    color: #777f96;
+            color: var(--muted);
 
-    font-size: 11px;
-    font-weight: 800;
+            font-size: 11px;
+        }
 
-    letter-spacing: 2px;
-    text-transform: uppercase;
+        .live {
+            display: flex;
+            align-items: center;
+            gap: 7px;
 
-    margin-bottom: 5px;
-}
+            color: var(--muted);
 
-h1 {
-    margin: 0;
+            font-size: 10px;
+            font-weight: 700;
 
-    font-size: 34px;
-    line-height: 1;
+            letter-spacing: 1px;
+        }
 
-    letter-spacing: -1.5px;
-}
+        .live-dot {
+            width: 6px;
+            height: 6px;
 
-.header-right {
-    text-align: right;
-}
+            border-radius: 50%;
 
-.live {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+            background: var(--green);
 
-    padding: 8px 12px;
+            box-shadow:
+                0 0 10px rgba(53,233,139,.8);
 
-    border-radius: 999px;
+            animation: blink 2s infinite;
+        }
 
-    background: rgba(56, 245, 145, .07);
-    border: 1px solid rgba(56, 245, 145, .13);
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
 
-    color: #52f39c;
+            50% {
+                opacity: .35;
+            }
+        }
 
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 1px;
-}
+        /* Cards */
 
-.live-dot {
-    width: 7px;
-    height: 7px;
+        .servers {
+            display: grid;
 
-    border-radius: 50%;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
 
-    background: #52f39c;
+            gap: 14px;
+        }
 
-    box-shadow:
-        0 0 12px #52f39c;
+        .server {
+            position: relative;
 
-    animation: livePulse 1.6s infinite;
-}
+            padding: 22px;
 
-@keyframes livePulse {
+            border-radius: 19px;
 
-    50% {
-        opacity: .35;
-    }
+            background: var(--card);
 
-}
+            border: 1px solid var(--border);
 
+            backdrop-filter: blur(20px);
 
-/* SUMMARY */
+            overflow: hidden;
 
-.summary {
-    display: grid;
-    grid-template-columns:
-        repeat(3, 1fr);
+            transform: translateY(0);
 
-    gap: 14px;
+            transition:
+                border-color .35s ease,
+                transform .35s ease,
+                background .35s ease,
+                box-shadow .35s ease;
+        }
 
-    margin-bottom: 22px;
-}
+        .server::before {
+            content: "";
 
-.summary-card {
-    padding: 17px 19px;
+            position: absolute;
 
-    border-radius: 17px;
+            top: 0;
+            left: -100%;
 
-    background: rgba(15,19,31,.72);
+            width: 100%;
+            height: 1px;
 
-    border: 1px solid rgba(255,255,255,.065);
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255,255,255,.35),
+                    transparent
+                );
 
-    backdrop-filter: blur(14px);
-}
+            animation: scan 5s linear infinite;
+        }
 
-.summary-label {
-    color: #656d82;
+        @keyframes scan {
+            0% {
+                left: -100%;
+            }
 
-    font-size: 10px;
-    font-weight: 800;
+            50%, 100% {
+                left: 100%;
+            }
+        }
 
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-}
+        .server:hover {
+            transform: translateY(-3px);
 
-.summary-value {
-    margin-top: 7px;
+            border-color:
+                rgba(255,255,255,.14);
 
-    font-size: 23px;
-    font-weight: 800;
-}
+            background:
+                rgba(20,21,28,.78);
 
-.green {
-    color: #52f39c;
-}
+            box-shadow:
+                0 20px 60px rgba(0,0,0,.25);
+        }
 
+        .server.offline {
+            border-color:
+                rgba(255,77,94,.35);
 
-/* SERVERS */
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(45,15,20,.72),
+                    rgba(17,18,24,.78)
+                );
 
-.servers {
-    display: grid;
+            box-shadow:
+                0 0 35px rgba(255,77,94,.06);
+        }
 
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
+        .server.offline::after {
+            content: "";
 
-    gap: 18px;
-}
+            position: absolute;
+            inset: 0;
 
+            pointer-events: none;
 
-/* CARD */
+            background:
+                radial-gradient(
+                    circle at 100% 0%,
+                    rgba(255,77,94,.09),
+                    transparent 45%
+                );
+        }
 
-.card {
-    position: relative;
+        /* Server top */
 
-    overflow: hidden;
+        .server-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
 
-    padding: 25px;
+            gap: 15px;
+        }
 
-    border-radius: 23px;
+        .server-name {
+            display: flex;
+            align-items: center;
 
-    background:
-        linear-gradient(
-            145deg,
-            rgba(20,25,41,.90),
-            rgba(10,13,23,.90)
-        );
+            gap: 11px;
+        }
 
-    border: 1px solid rgba(255,255,255,.075);
+        .flag {
+            width: 38px;
+            height: 38px;
 
-    box-shadow:
-        0 25px 70px rgba(0,0,0,.30);
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-    transition:
-        transform .25s,
-        border-color .25s,
-        box-shadow .25s;
-}
+            border-radius: 11px;
 
-.card:hover {
-    transform: translateY(-3px);
+            background:
+                rgba(255,255,255,.045);
 
-    border-color:
-        rgba(255,255,255,.14);
+            border: 1px solid
+                rgba(255,255,255,.055);
 
-    box-shadow:
-        0 30px 80px rgba(0,0,0,.42);
-}
+            font-size: 20px;
+        }
 
+        .name {
+            font-size: 15px;
+            font-weight: 700;
+        }
 
-/* TOP */
+        .type {
+            margin-top: 3px;
 
-.card-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+            color: var(--muted);
 
-    gap: 15px;
-}
+            font-size: 10px;
+        }
 
-.server-info {
-    display: flex;
-    align-items: center;
-    gap: 13px;
-}
+        /* Status */
 
-.flag {
-    width: 52px;
-    height: 52px;
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+            padding: 6px 9px;
 
-    border-radius: 16px;
+            border-radius: 999px;
 
-    background:
-        rgba(255,255,255,.055);
+            background:
+                rgba(255,255,255,.035);
 
-    border: 1px solid
-        rgba(255,255,255,.06);
+            font-size: 9px;
+            font-weight: 800;
 
-    font-size: 28px;
-}
+            letter-spacing: .8px;
 
-.server-name {
-    font-size: 20px;
-    font-weight: 800;
-}
+            transition:
+                color .3s,
+                background .3s;
+        }
 
-.server-type {
-    margin-top: 4px;
+        .dot {
+            width: 6px;
+            height: 6px;
 
-    color: #697186;
+            border-radius: 50%;
 
-    font-size: 12px;
-}
+            transition:
+                background .3s,
+                box-shadow .3s;
+        }
 
+        .status.online {
+            color: var(--green);
+            background:
+                rgba(53,233,139,.055);
+        }
 
-/* STATUS */
+        .status.online .dot {
+            background: var(--green);
 
-.status {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
+            box-shadow:
+                0 0 9px rgba(53,233,139,.8);
+        }
 
-    padding: 7px 10px;
+        .status.offline {
+            color: var(--red);
+            background:
+                rgba(255,77,94,.08);
+        }
 
-    border-radius: 999px;
+        .status.offline .dot {
+            background: var(--red);
 
-    background: rgba(255,255,255,.045);
+            box-shadow:
+                0 0 10px rgba(255,77,94,.8);
 
-    font-size: 10px;
-    font-weight: 900;
+            animation:
+                offlinePulse 1.5s infinite;
+        }
 
-    letter-spacing: .8px;
-}
+        .status.checking {
+            color: var(--yellow);
+        }
 
-.status-dot {
-    width: 7px;
-    height: 7px;
+        .status.checking .dot {
+            background: var(--yellow);
 
-    border-radius: 50%;
-}
+            box-shadow:
+                0 0 9px rgba(255,200,87,.7);
 
-.checking {
-    color: #ffd45a;
-}
+            animation:
+                checkingPulse .8s infinite;
+        }
 
-.checking .status-dot {
-    background: #ffd45a;
+        @keyframes checkingPulse {
+            50% {
+                opacity: .25;
+                transform: scale(.65);
+            }
+        }
 
-    box-shadow:
-        0 0 10px #ffd45a;
+        @keyframes offlinePulse {
+            50% {
+                opacity: .45;
+            }
+        }
 
-    animation: statusPulse 1s infinite;
-}
+        /* Endpoint */
 
-.online {
-    color: #52f39c;
+        .endpoint {
+            margin-top: 22px;
 
-    background:
-        rgba(82,243,156,.055);
-}
+            padding-top: 17px;
 
-.online .status-dot {
-    background: #52f39c;
+            border-top:
+                1px solid rgba(255,255,255,.055);
+        }
 
-    box-shadow:
-        0 0 12px #52f39c;
-}
+        .endpoint-label {
+            color: #5f6370;
 
-.offline {
-    color: #ff5c69;
+            font-size: 9px;
+            font-weight: 700;
 
-    background:
-        rgba(255,92,105,.055);
-}
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
 
-.offline .status-dot {
-    background: #ff5c69;
+        .endpoint-value {
+            margin-top: 6px;
 
-    box-shadow:
-        0 0 12px #ff5c69;
-}
+            color: #bfc3cd;
 
-@keyframes statusPulse {
+            font-family:
+                "SFMono-Regular",
+                Consolas,
+                monospace;
 
-    50% {
-        opacity: .3;
-    }
+            font-size: 12px;
+        }
 
-}
+        /* Bottom */
 
+        .bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
 
-/* ENDPOINT */
+            margin-top: 20px;
+        }
 
-.endpoint {
-    margin-top: 24px;
+        .latency-label {
+            color: #5f6370;
 
-    padding: 14px 16px;
+            font-size: 9px;
+            font-weight: 700;
 
-    border-radius: 14px;
+            letter-spacing: 1px;
+        }
 
-    background:
-        rgba(0,0,0,.18);
+        .latency {
+            margin-top: 4px;
 
-    border:
-        1px solid rgba(255,255,255,.045);
-}
+            font-size: 25px;
+            font-weight: 750;
 
-.endpoint-label {
-    color: #626a7d;
+            letter-spacing: -1px;
 
-    font-size: 9px;
-    font-weight: 800;
+            transition:
+                color .3s;
+        }
 
-    letter-spacing: 1.4px;
-}
+        .latency span {
+            color: #656a77;
 
-.endpoint-value {
-    margin-top: 6px;
+            font-size: 11px;
+            font-weight: 500;
 
-    color: #dfe4f1;
+            letter-spacing: 0;
+        }
 
-    font-family:
-        "SFMono-Regular",
-        Consolas,
-        monospace;
+        .offline .latency {
+            color: var(--red);
+        }
 
-    font-size: 13px;
-}
+        .online .latency {
+            color: var(--green);
+        }
 
+        .protocol {
+            color: #555b68;
 
-/* METRICS */
+            font-size: 10px;
+            font-family: monospace;
+        }
 
-.metrics {
-    display: flex;
+        /* Footer */
 
-    align-items: flex-end;
-    justify-content: space-between;
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
 
-    margin-top: 22px;
-}
+            margin-top: 20px;
 
-.metric-label {
-    color: #626a7d;
+            color: #505563;
 
-    font-size: 9px;
-    font-weight: 800;
+            font-size: 10px;
+        }
 
-    letter-spacing: 1.3px;
-}
+        .refresh {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-.latency {
-    margin-top: 5px;
+        button {
+            border: 1px solid
+                rgba(255,255,255,.08);
 
-    font-size: 30px;
-    font-weight: 850;
+            background:
+                rgba(255,255,255,.045);
 
-    letter-spacing: -1px;
-}
+            color: #cdd1db;
 
-.latency span {
-    color: #697186;
+            padding: 8px 12px;
 
-    font-size: 12px;
-    font-weight: 500;
+            border-radius: 9px;
 
-    letter-spacing: 0;
-}
+            cursor: pointer;
 
-.protocol {
-    color: #626a7d;
+            font-size: 10px;
+            font-weight: 700;
 
-    font-size: 11px;
-}
+            transition:
+                background .2s,
+                border-color .2s,
+                transform .2s;
+        }
 
+        button:hover {
+            background:
+                rgba(255,255,255,.08);
 
-/* BUTTON */
+            border-color:
+                rgba(255,255,255,.14);
+        }
 
-.actions {
-    display: flex;
-    justify-content: center;
+        button:active {
+            transform: scale(.96);
+        }
 
-    margin-top: 22px;
-}
+        button:disabled {
+            opacity: .45;
+            cursor: default;
+        }
 
-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 9px;
+        .spin {
+            display: inline-block;
+        }
 
-    padding: 12px 17px;
+        button.loading .spin {
+            animation:
+                rotate .7s linear infinite;
+        }
 
-    border-radius: 12px;
+        @keyframes rotate {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
-    border:
-        1px solid rgba(255,255,255,.09);
+        /* Responsive */
 
-    background:
-        rgba(255,255,255,.055);
+        @media (max-width: 700px) {
 
-    color: #e9edf7;
+            .app {
+                padding-top: 35px;
+            }
 
-    font-size: 12px;
-    font-weight: 800;
+            header {
+                align-items: flex-start;
+            }
 
-    cursor: pointer;
+            .servers {
+                grid-template-columns: 1fr;
+            }
 
-    transition: .2s;
-}
+            .server {
+                padding: 20px;
+            }
 
-button:hover {
-    background:
-        rgba(255,255,255,.095);
+        }
 
-    border-color:
-        rgba(255,255,255,.15);
-}
+        @media (max-width: 450px) {
 
-button:disabled {
-    opacity: .5;
-    cursor: default;
-}
+            header {
+                flex-direction: column;
+                gap: 14px;
+            }
 
-.refresh-icon {
-    font-size: 15px;
-}
+            .live {
+                margin-left: 53px;
+            }
 
+            .footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
 
-/* UPDATED */
+        }
 
-.updated {
-    margin-top: 13px;
-
-    text-align: center;
-
-    color: #4e5669;
-
-    font-size: 10px;
-}
-
-
-/* MOBILE */
-
-@media (max-width: 760px) {
-
-    .container {
-        width: min(100% - 24px, 600px);
-        padding-top: 30px;
-    }
-
-    header {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .header-right {
-        text-align: left;
-    }
-
-    .summary {
-        grid-template-columns: 1fr;
-    }
-
-    .servers {
-        grid-template-columns: 1fr;
-    }
-
-}
-
-</style>
+    </style>
 
 </head>
 
 
 <body>
 
-<div class="container">
+<div class="background">
+    <div class="glow one"></div>
+    <div class="glow two"></div>
+</div>
+
+
+<div class="app">
 
 
 <header>
@@ -618,278 +673,233 @@ button:disabled {
 
         <div>
 
-            <div class="eyebrow">
-                Infrastructure
+            <div class="brand-title">
+                VPN Monitor
             </div>
 
-            <h1>VPN Monitor</h1>
+            <div class="brand-subtitle">
+                Server availability
+            </div>
 
         </div>
 
     </div>
 
 
-    <div class="header-right">
+    <div class="live">
 
-        <div class="live">
-            <span class="live-dot"></span>
-            LIVE MONITORING
-        </div>
+        <span class="live-dot"></span>
+
+        LIVE
 
     </div>
 
 </header>
 
 
-<div class="summary">
-
-    <div class="summary-card">
-
-        <div class="summary-label">
-            Servers
-        </div>
-
-        <div
-            id="total"
-            class="summary-value"
-        >
-            2
-        </div>
-
-    </div>
-
-
-    <div class="summary-card">
-
-        <div class="summary-label">
-            Online
-        </div>
-
-        <div
-            id="online"
-            class="summary-value green"
-        >
-            —
-        </div>
-
-    </div>
-
-
-    <div class="summary-card">
-
-        <div class="summary-label">
-            Last check
-        </div>
-
-        <div
-            id="last"
-            class="summary-value"
-            style="font-size:17px"
-        >
-            —
-        </div>
-
-    </div>
-
-</div>
-
 
 <div class="servers">
 
 
-<!-- SWITZERLAND -->
-
-<div class="card">
-
-    <div class="card-top">
-
-        <div class="server-info">
-
-            <div class="flag">
-                🇨🇭
-            </div>
-
-            <div>
-
-                <div class="server-name">
-                    Switzerland
-                </div>
-
-                <div class="server-type">
-                    VPN Server
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div
-            id="status-ch"
-            class="status checking"
-        >
-
-            <span class="status-dot"></span>
-
-            CHECKING
-
-        </div>
-
-    </div>
-
-
-    <div class="endpoint">
-
-        <div class="endpoint-label">
-            TCP ENDPOINT
-        </div>
-
-        <div class="endpoint-value">
-            31.76.4.168:25558
-        </div>
-
-    </div>
-
-
-    <div class="metrics">
-
-        <div>
-
-            <div class="metric-label">
-                LATENCY
-            </div>
-
-            <div
-                id="latency-ch"
-                class="latency"
-            >
-                —
-                <span>ms</span>
-            </div>
-
-        </div>
-
-
-        <div class="protocol">
-            TCP
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- POLAND -->
-
-<div class="card">
-
-    <div class="card-top">
-
-        <div class="server-info">
-
-            <div class="flag">
-                🇵🇱
-            </div>
-
-            <div>
-
-                <div class="server-name">
-                    Poland
-                </div>
-
-                <div class="server-type">
-                    VPN Server
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div
-            id="status-pl"
-            class="status checking"
-        >
-
-            <span class="status-dot"></span>
-
-            CHECKING
-
-        </div>
-
-    </div>
-
-
-    <div class="endpoint">
-
-        <div class="endpoint-label">
-            TCP ENDPOINT
-        </div>
-
-        <div class="endpoint-value">
-            2.26.255.84:27489
-        </div>
-
-    </div>
-
-
-    <div class="metrics">
-
-        <div>
-
-            <div class="metric-label">
-                LATENCY
-            </div>
-
-            <div
-                id="latency-pl"
-                class="latency"
-            >
-                —
-                <span>ms</span>
-            </div>
-
-        </div>
-
-
-        <div class="protocol">
-            TCP
-        </div>
-
-    </div>
-
-</div>
-
-</div>
-
-
-<div class="actions">
-
-    <button
-        id="refresh"
-        onclick="checkAll()"
+    <!-- SWITZERLAND -->
+
+    <div
+        class="server"
+        id="card-ch"
     >
 
-        <span class="refresh-icon">
-            ↻
-        </span>
+        <div class="server-top">
 
-        Проверить сейчас
+            <div class="server-name">
 
-    </button>
+                <div class="flag">
+                    🇨🇭
+                </div>
+
+                <div>
+
+                    <div class="name">
+                        Switzerland
+                    </div>
+
+                    <div class="type">
+                        VPN Server
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="status-ch"
+                class="status checking"
+            >
+
+                <span class="dot"></span>
+
+                CHECKING
+
+            </div>
+
+        </div>
+
+
+        <div class="endpoint">
+
+            <div class="endpoint-label">
+                Endpoint
+            </div>
+
+            <div class="endpoint-value">
+                31.76.4.168:25558
+            </div>
+
+        </div>
+
+
+        <div class="bottom">
+
+            <div>
+
+                <div class="latency-label">
+                    TCP LATENCY
+                </div>
+
+                <div
+                    id="latency-ch"
+                    class="latency"
+                >
+                    —
+                    <span>ms</span>
+                </div>
+
+            </div>
+
+            <div class="protocol">
+                TCP
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- POLAND -->
+
+    <div
+        class="server"
+        id="card-pl"
+    >
+
+        <div class="server-top">
+
+            <div class="server-name">
+
+                <div class="flag">
+                    🇵🇱
+                </div>
+
+                <div>
+
+                    <div class="name">
+                        Poland
+                    </div>
+
+                    <div class="type">
+                        VPN Server
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="status-pl"
+                class="status checking"
+            >
+
+                <span class="dot"></span>
+
+                CHECKING
+
+            </div>
+
+        </div>
+
+
+        <div class="endpoint">
+
+            <div class="endpoint-label">
+                Endpoint
+            </div>
+
+            <div class="endpoint-value">
+                2.26.255.84:27489
+            </div>
+
+        </div>
+
+
+        <div class="bottom">
+
+            <div>
+
+                <div class="latency-label">
+                    TCP LATENCY
+                </div>
+
+                <div
+                    id="latency-pl"
+                    class="latency"
+                >
+                    —
+                    <span>ms</span>
+                </div>
+
+            </div>
+
+            <div class="protocol">
+                TCP
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
 
 
-<div
-    id="updated"
-    class="updated"
->
-    Выполняется первая проверка...
+
+<div class="footer">
+
+    <div id="updated">
+        Checking servers...
+    </div>
+
+
+    <div class="refresh">
+
+        <button
+            id="refresh"
+            onclick="checkAll()"
+        >
+
+            <span class="spin">↻</span>
+
+            Проверить
+
+        </button>
+
+    </div>
+
 </div>
 
 
 </div>
+
 
 
 <script>
@@ -920,10 +930,20 @@ function setStatus(
             "status-" + server
         );
 
+    const card =
+        document.getElementById(
+            "card-" + server
+        );
+
     const latencyElement =
         document.getElementById(
             "latency-" + server
         );
+
+
+    card.classList.remove(
+        "offline"
+    );
 
 
     if (state === "online") {
@@ -932,7 +952,7 @@ function setStatus(
             "status online";
 
         status.innerHTML = `
-            <span class="status-dot"></span>
+            <span class="dot"></span>
             ONLINE
         `;
 
@@ -949,12 +969,16 @@ function setStatus(
             "status offline";
 
         status.innerHTML = `
-            <span class="status-dot"></span>
+            <span class="dot"></span>
             OFFLINE
         `;
 
         latencyElement.innerHTML =
-            `— <span>ms</span>`;
+            `DOWN <span>—</span>`;
+
+        card.classList.add(
+            "offline"
+        );
 
     }
 
@@ -965,12 +989,13 @@ function setStatus(
             "status checking";
 
         status.innerHTML = `
-            <span class="status-dot"></span>
+            <span class="dot"></span>
             CHECKING
         `;
 
         latencyElement.innerHTML =
-            `— <span>ms</span>`;
+            `—
+             <span>ms</span>`;
 
     }
 
@@ -979,7 +1004,10 @@ function setStatus(
 
 async function checkServer(server) {
 
-    setStatus(server, "checking");
+    setStatus(
+        server,
+        "checking"
+    );
 
 
     try {
@@ -1001,13 +1029,16 @@ async function checkServer(server) {
 
             throw new Error(
                 data.error ||
-                "HTTP " + response.status
+                "HTTP " +
+                response.status
             );
 
         }
 
 
-        if (data.status === "online") {
+        if (
+            data.status === "online"
+        ) {
 
             setStatus(
                 server,
@@ -1015,23 +1046,24 @@ async function checkServer(server) {
                 data.response_time_ms
             );
 
-        } else {
-
-            setStatus(
-                server,
-                "offline"
-            );
+            return true;
 
         }
 
 
-        return data.status === "online";
+        setStatus(
+            server,
+            "offline"
+        );
+
+        return false;
 
 
     } catch (error) {
 
         console.error(
-            "VPN check error:",
+            "VPN check:",
+            server,
             error
         );
 
@@ -1041,6 +1073,7 @@ async function checkServer(server) {
         );
 
         return false;
+
     }
 
 }
@@ -1053,7 +1086,21 @@ async function checkAll() {
             "refresh"
         );
 
+    const updated =
+        document.getElementById(
+            "updated"
+        );
+
+
     button.disabled = true;
+
+    button.classList.add(
+        "loading"
+    );
+
+
+    updated.textContent =
+        "Checking servers...";
 
 
     const results =
@@ -1067,37 +1114,46 @@ async function checkAll() {
         results.filter(Boolean).length;
 
 
-    document.getElementById(
-        "online"
-    ).textContent =
-        online + " / 2";
-
-
     const now =
         new Date();
 
 
-    document.getElementById(
-        "last"
-    ).textContent =
-        now.toLocaleTimeString(
-            "ru-RU",
-            {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit"
-            }
-        );
+    if (online === 2) {
 
+        updated.textContent =
+            "All systems operational · " +
+            now.toLocaleTimeString(
+                "ru-RU"
+            );
 
-    document.getElementById(
-        "updated"
-    ).textContent =
-        "Последняя проверка: " +
-        now.toLocaleTimeString("ru-RU");
+    }
+
+    else if (online === 1) {
+
+        updated.textContent =
+            "1 server offline · " +
+            now.toLocaleTimeString(
+                "ru-RU"
+            );
+
+    }
+
+    else {
+
+        updated.textContent =
+            "All servers offline · " +
+            now.toLocaleTimeString(
+                "ru-RU"
+            );
+
+    }
 
 
     button.disabled = false;
+
+    button.classList.remove(
+        "loading"
+    );
 
 }
 
