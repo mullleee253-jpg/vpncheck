@@ -2,7 +2,10 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>VPN Monitor</title>
 
@@ -16,17 +19,21 @@
             margin: 0;
             min-height: 100%;
             background: #020202;
-            color: white;
-            font-family: Inter, Arial, sans-serif;
+            color: #fff;
+            font-family:
+                Inter,
+                Arial,
+                Helvetica,
+                sans-serif;
         }
 
         body {
             overflow-x: hidden;
         }
 
-        /* =========================
+        /* ========================================
            BACKGROUND
-        ========================= */
+        ======================================== */
 
         .background {
             position: fixed;
@@ -126,7 +133,8 @@
                 rotateX(55deg)
                 scale(1.5);
 
-            transform-origin: center bottom;
+            transform-origin:
+                center bottom;
 
             animation:
                 gridMove 15s linear infinite;
@@ -150,26 +158,25 @@
             }
         }
 
-        /* =========================
+        /* ========================================
            MAIN
-        ========================= */
+        ======================================== */
 
         .container {
             position: relative;
 
             z-index: 2;
 
-            width: min(
-                1000px,
-                calc(100% - 32px)
-            );
+            width:
+                min(
+                    1050px,
+                    calc(100% - 32px)
+                );
 
             margin: 0 auto;
 
             padding:
-                70px
-                0
-                60px;
+                70px 0 60px;
         }
 
         header {
@@ -186,8 +193,7 @@
             gap: 8px;
 
             padding:
-                8px
-                13px;
+                8px 13px;
 
             border:
                 1px solid
@@ -198,7 +204,8 @@
             background:
                 rgba(255,255,255,.035);
 
-            backdrop-filter: blur(15px);
+            backdrop-filter:
+                blur(15px);
 
             color: #aaa;
 
@@ -206,7 +213,8 @@
 
             letter-spacing: .08em;
 
-            text-transform: uppercase;
+            text-transform:
+                uppercase;
         }
 
         .badge-dot {
@@ -239,9 +247,7 @@
 
         h1 {
             margin:
-                20px
-                0
-                10px;
+                20px 0 10px;
 
             font-size:
                 clamp(
@@ -263,9 +269,9 @@
             font-size: 15px;
         }
 
-        /* =========================
-           SERVER CARDS
-        ========================= */
+        /* ========================================
+           SERVERS
+        ======================================== */
 
         .servers {
             display: grid;
@@ -292,10 +298,13 @@
             background:
                 rgba(10,10,10,.72);
 
-            backdrop-filter: blur(20px);
+            backdrop-filter:
+                blur(20px);
 
             box-shadow:
-                0 20px 60px rgba(0,0,0,.4),
+                0 20px 60px
+                rgba(0,0,0,.4),
+
                 inset 0 1px 0
                 rgba(255,255,255,.04);
 
@@ -337,6 +346,7 @@
             box-shadow:
                 0 30px 80px
                 rgba(0,0,0,.55),
+
                 inset 0 1px 0
                 rgba(255,255,255,.06);
         }
@@ -345,6 +355,10 @@
             transform:
                 translateX(100%);
         }
+
+        /* ========================================
+           TOP
+        ======================================== */
 
         .top {
             display: flex;
@@ -385,9 +399,9 @@
             font-size: 12px;
         }
 
-        /* =========================
+        /* ========================================
            STATUS
-        ========================= */
+        ======================================== */
 
         .status {
             display: flex;
@@ -461,9 +475,9 @@
             color: #ffc400;
         }
 
-        /* =========================
+        /* ========================================
            METRICS
-        ========================= */
+        ======================================== */
 
         .metrics {
             display: flex;
@@ -498,10 +512,74 @@
 
             color: #666;
 
-            font-family: monospace;
+            font-family:
+                monospace;
 
             font-size: 12px;
         }
+
+        /* ========================================
+           UPTIME
+        ======================================== */
+
+        .uptime-box {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 10px;
+
+            margin-top: 22px;
+
+            padding-top: 18px;
+
+            border-top:
+                1px solid
+                rgba(255,255,255,.06);
+        }
+
+        .uptime-item {
+            min-width: 0;
+
+            display: flex;
+
+            flex-direction:
+                column;
+
+            gap: 5px;
+        }
+
+        .uptime-label {
+            color: #555;
+
+            font-size: 10px;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing: .08em;
+        }
+
+        .uptime-value,
+        .stable-value,
+        .incidents-value {
+            color: #ddd;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            white-space: nowrap;
+        }
+
+        .uptime-value {
+            color: #00ff88;
+        }
+
+        /* ========================================
+           FOOTER CARD
+        ======================================== */
 
         .footer {
             display: flex;
@@ -511,6 +589,8 @@
 
             align-items:
                 center;
+
+            gap: 10px;
 
             margin-top: 25px;
 
@@ -525,9 +605,25 @@
             font-size: 12px;
         }
 
-        /* =========================
+        .server-error {
+            color: #777;
+
+            font-family:
+                monospace;
+
+            font-size: 10px;
+
+            overflow: hidden;
+
+            text-overflow:
+                ellipsis;
+
+            white-space: nowrap;
+        }
+
+        /* ========================================
            BUTTON
-        ========================= */
+        ======================================== */
 
         .controls {
             display: flex;
@@ -541,13 +637,13 @@
         button {
             display: inline-flex;
 
-            align-items: center;
+            align-items:
+                center;
 
             gap: 10px;
 
             padding:
-                13px
-                20px;
+                13px 20px;
 
             border:
                 1px solid
@@ -609,9 +705,9 @@
             }
         }
 
-        /* =========================
-           UPDATE
-        ========================= */
+        /* ========================================
+           LAST UPDATE
+        ======================================== */
 
         .update-info {
             margin-top: 20px;
@@ -623,9 +719,9 @@
             font-size: 11px;
         }
 
-        /* =========================
+        /* ========================================
            TIMER
-        ========================= */
+        ======================================== */
 
         .timer {
             position: fixed;
@@ -657,17 +753,19 @@
                 0 0 10px #00ff88;
         }
 
-        /* =========================
+        /* ========================================
            MOBILE
-        ========================= */
+        ======================================== */
 
         @media (max-width: 700px) {
+
             .container {
                 padding-top: 40px;
             }
 
             .servers {
-                grid-template-columns: 1fr;
+                grid-template-columns:
+                    1fr;
             }
 
             .card {
@@ -677,32 +775,89 @@
             .latency-value {
                 font-size: 42px;
             }
+
         }
+
+        @media (max-width: 430px) {
+
+            .top {
+                margin-bottom: 28px;
+            }
+
+            .country-name {
+                font-size: 16px;
+            }
+
+            .endpoint {
+                font-size: 10px;
+            }
+
+            .uptime-box {
+                grid-template-columns:
+                    repeat(3, 1fr);
+
+                gap: 7px;
+            }
+
+            .uptime-value,
+            .stable-value,
+            .incidents-value {
+                font-size: 12px;
+            }
+
+            .uptime-label {
+                font-size: 9px;
+            }
+
+        }
+
     </style>
 </head>
 
+
 <body>
 
+    <!-- ========================================
+         ANIMATED BACKGROUND
+    ======================================== -->
+
     <div class="background">
+
         <div class="orb one"></div>
+
         <div class="orb two"></div>
+
         <div class="orb three"></div>
+
         <div class="grid"></div>
+
     </div>
 
 
+    <!-- ========================================
+         MAIN
+    ======================================== -->
+
     <main class="container">
+
+
+        <!-- HEADER -->
 
         <header>
 
             <div class="badge">
+
                 <span class="badge-dot"></span>
+
                 VPN Network Monitor
+
             </div>
+
 
             <h1>
                 Server Status
             </h1>
+
 
             <div class="subtitle">
                 Real-time TCP connectivity monitoring
@@ -711,9 +866,17 @@
         </header>
 
 
+
+        <!-- ====================================
+             SERVERS
+        ==================================== -->
+
         <section class="servers">
 
-            <!-- SWITZERLAND -->
+
+            <!-- ==================================
+                 SWITZERLAND
+            ================================== -->
 
             <article
                 class="card"
@@ -727,6 +890,7 @@
                         <div class="flag">
                             🇨🇭
                         </div>
+
 
                         <div>
 
@@ -756,6 +920,8 @@
                 </div>
 
 
+                <!-- LATENCY -->
+
                 <div class="metrics">
 
                     <div>
@@ -778,20 +944,82 @@
                 </div>
 
 
+                <!-- UPTIME -->
+
+                <div class="uptime-box">
+
+
+                    <div class="uptime-item">
+
+                        <span class="uptime-label">
+                            Uptime
+                        </span>
+
+                        <strong
+                            class="uptime-value"
+                            data-uptime="ch"
+                        >
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="uptime-item">
+
+                        <span class="uptime-label">
+                            Стабилен
+                        </span>
+
+                        <strong
+                            class="stable-value"
+                            data-stable="ch"
+                        >
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="uptime-item">
+
+                        <span class="uptime-label">
+                            Сбоев
+                        </span>
+
+                        <strong
+                            class="incidents-value"
+                            data-incidents="ch"
+                        >
+                            —
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
                 <div class="footer">
 
                     <span>
                         TCP connection
                     </span>
 
-                    <span class="server-error"></span>
+                    <span
+                        class="server-error"
+                        data-error="ch"
+                    ></span>
 
                 </div>
 
             </article>
 
 
-            <!-- POLAND -->
+
+            <!-- ==================================
+                 POLAND
+            ================================== -->
 
             <article
                 class="card"
@@ -805,6 +1033,7 @@
                         <div class="flag">
                             🇵🇱
                         </div>
+
 
                         <div>
 
@@ -834,6 +1063,8 @@
                 </div>
 
 
+                <!-- LATENCY -->
+
                 <div class="metrics">
 
                     <div>
@@ -856,20 +1087,85 @@
                 </div>
 
 
+                <!-- UPTIME -->
+
+                <div class="uptime-box">
+
+
+                    <div class="uptime-item">
+
+                        <span class="uptime-label">
+                            Uptime
+                        </span>
+
+                        <strong
+                            class="uptime-value"
+                            data-uptime="pl"
+                        >
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="uptime-item">
+
+                        <span class="uptime-label">
+                            Стабилен
+                        </span>
+
+                        <strong
+                            class="stable-value"
+                            data-stable="pl"
+                        >
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="uptime-item">
+
+                        <span class="uptime-label">
+                            Сбоев
+                        </span>
+
+                        <strong
+                            class="incidents-value"
+                            data-incidents="pl"
+                        >
+                            —
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
                 <div class="footer">
 
                     <span>
                         TCP connection
                     </span>
 
-                    <span class="server-error"></span>
+                    <span
+                        class="server-error"
+                        data-error="pl"
+                    ></span>
 
                 </div>
 
             </article>
 
+
         </section>
 
+
+
+        <!-- ========================================
+             REFRESH BUTTON
+        ======================================== -->
 
         <div class="controls">
 
@@ -886,17 +1182,29 @@
         </div>
 
 
+
+        <!-- ========================================
+             LAST UPDATE
+        ======================================== -->
+
         <div class="update-info">
 
             Last update:
+
             <span id="lastUpdate">
                 —
             </span>
 
         </div>
 
+
     </main>
 
+
+
+    <!-- ========================================
+         TIMER
+    ======================================== -->
 
     <div class="timer">
 
@@ -908,18 +1216,25 @@
     </div>
 
 
+
 <script>
+
+    /* ========================================
+       CONFIG
+    ======================================== */
 
     const SERVERS = [
 
         {
             id: "server-ch",
+            key: "ch",
             host: "31.76.4.168",
             port: 25558
         },
 
         {
             id: "server-pl",
+            key: "pl",
             host: "2.26.255.84",
             port: 27489
         }
@@ -927,7 +1242,8 @@
     ];
 
 
-    const REFRESH_INTERVAL = 30000;
+    const REFRESH_INTERVAL =
+        30000;
 
 
     let refreshTimer = null;
@@ -937,9 +1253,10 @@
     let timerStart = 0;
 
 
-    /* =========================
-       STATUS
-    ========================= */
+
+    /* ========================================
+       SET SERVER STATUS
+    ======================================== */
 
     function setStatus(
         card,
@@ -951,18 +1268,26 @@
         const statusEl =
             card.querySelector(".status");
 
+
         const textEl =
             card.querySelector(".status-text");
 
+
         const latencyEl =
-            card.querySelector(".latency-value");
+            card.querySelector(
+                ".latency-value"
+            );
+
 
         const errorEl =
-            card.querySelector(".server-error");
+            card.querySelector(
+                ".server-error"
+            );
 
 
         statusEl.className =
             "status " + status;
+
 
 
         if (status === "online") {
@@ -970,35 +1295,46 @@
             textEl.textContent =
                 "ONLINE";
 
+
             latencyEl.textContent =
                 latency ?? "—";
 
         }
 
-        else if (status === "offline") {
+
+        else if (
+            status === "offline"
+        ) {
 
             textEl.textContent =
                 "OFFLINE";
 
+
             latencyEl.textContent =
                 "—";
 
         }
 
-        else if (status === "checking") {
+
+        else if (
+            status === "checking"
+        ) {
 
             textEl.textContent =
                 "CHECKING";
 
+
             latencyEl.textContent =
                 "—";
 
         }
+
 
         else {
 
             textEl.textContent =
                 "UNKNOWN";
+
 
             latencyEl.textContent =
                 "—";
@@ -1012,11 +1348,14 @@
     }
 
 
-    /* =========================
-       CHECK ONE SERVER
-    ========================= */
 
-    async function checkServer(server) {
+    /* ========================================
+       CHECK TCP SERVER
+    ======================================== */
+
+    async function checkServer(
+        server
+    ) {
 
         const card =
             document.getElementById(
@@ -1034,13 +1373,9 @@
 
             const url =
                 "/api/check" +
-                "?host=" +
+                "?server=" +
                 encodeURIComponent(
-                    server.host
-                ) +
-                "&port=" +
-                encodeURIComponent(
-                    server.port
+                    server.key
                 );
 
 
@@ -1049,7 +1384,6 @@
                     url,
                     {
                         method: "GET",
-
                         cache: "no-store"
                     }
                 );
@@ -1084,6 +1418,7 @@
 
             }
 
+
             else if (
                 data.status ===
                 "offline"
@@ -1098,6 +1433,7 @@
 
             }
 
+
             else {
 
                 setStatus(
@@ -1111,10 +1447,11 @@
 
         }
 
+
         catch (error) {
 
             console.error(
-                "Server check error:",
+                "Check error:",
                 error
             );
 
@@ -1131,9 +1468,151 @@
     }
 
 
-    /* =========================
-       CHECK ALL
-    ========================= */
+
+    /* ========================================
+       LOAD UPTIME DATA
+    ======================================== */
+
+    async function loadUptime() {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/status",
+                    {
+                        method: "GET",
+                        cache: "no-store"
+                    }
+                );
+
+
+            if (!response.ok) {
+                return;
+            }
+
+
+            const data =
+                await response.json();
+
+
+            if (!data.ok) {
+                return;
+            }
+
+
+
+            for (
+                const key of
+                ["ch", "pl"]
+            ) {
+
+                const server =
+                    data.servers[key];
+
+
+                if (!server) {
+                    continue;
+                }
+
+
+
+                /* UPTIME */
+
+                const uptime =
+                    document.querySelector(
+                        `[data-uptime="${key}"]`
+                    );
+
+
+                if (
+                    server.uptime_percent !==
+                    null &&
+                    server.uptime_percent !==
+                    undefined
+                ) {
+
+                    uptime.textContent =
+                        server.uptime_percent +
+                        "%";
+
+                }
+
+
+
+                /* STABLE */
+
+                const stable =
+                    document.querySelector(
+                        `[data-stable="${key}"]`
+                    );
+
+
+                if (
+                    server.status ===
+                    "online"
+                ) {
+
+                    stable.textContent =
+                        server.stable_text;
+
+                }
+
+
+                else if (
+                    server.status ===
+                    "offline"
+                ) {
+
+                    stable.textContent =
+                        "DOWN " +
+                        server.downtime_text;
+
+                }
+
+
+                else {
+
+                    stable.textContent =
+                        "—";
+
+                }
+
+
+
+                /* INCIDENTS */
+
+                const incidents =
+                    document.querySelector(
+                        `[data-incidents="${key}"]`
+                    );
+
+
+                incidents.textContent =
+                    server.incidents ??
+                    0;
+
+            }
+
+        }
+
+
+        catch (error) {
+
+            console.error(
+                "Uptime error:",
+                error
+            );
+
+        }
+
+    }
+
+
+
+    /* ========================================
+       CHECK EVERYTHING
+    ======================================== */
 
     async function checkAll() {
 
@@ -1147,18 +1626,40 @@
             "loading"
         );
 
-        button.disabled = true;
 
+        button.disabled =
+            true;
+
+
+
+        /*
+         * TCP checks
+         */
 
         await Promise.all(
 
             SERVERS.map(
                 server =>
-                    checkServer(server)
+                    checkServer(
+                        server
+                    )
             )
 
         );
 
+
+
+        /*
+         * Load database statistics
+         */
+
+        await loadUptime();
+
+
+
+        /*
+         * Update timestamp
+         */
 
         document.getElementById(
             "lastUpdate"
@@ -1167,11 +1668,15 @@
                 .toLocaleTimeString();
 
 
+
         button.classList.remove(
             "loading"
         );
 
-        button.disabled = false;
+
+        button.disabled =
+            false;
+
 
 
         restartTimer();
@@ -1179,9 +1684,10 @@
     }
 
 
-    /* =========================
+
+    /* ========================================
        AUTO REFRESH TIMER
-    ========================= */
+    ======================================== */
 
     function restartTimer() {
 
@@ -1199,6 +1705,7 @@
             performance.now();
 
 
+
         function animate(now) {
 
             const elapsed =
@@ -1213,12 +1720,15 @@
                 );
 
 
-            document.getElementById(
-                "timerBar"
-            ).style.transform =
-                "scaleX(" +
-                (1 - progress) +
-                ")";
+            const bar =
+                document.getElementById(
+                    "timerBar"
+                );
+
+
+            bar.style.transform =
+                `scaleX(${1 - progress})`;
+
 
 
             if (
@@ -1235,10 +1745,12 @@
         }
 
 
+
         animationFrame =
             requestAnimationFrame(
                 animate
             );
+
 
 
         refreshTimer =
@@ -1250,9 +1762,10 @@
     }
 
 
-    /* =========================
-       MANUAL REFRESH
-    ========================= */
+
+    /* ========================================
+       MANUAL BUTTON
+    ======================================== */
 
     document
         .getElementById(
@@ -1264,11 +1777,13 @@
         );
 
 
-    /* =========================
+
+    /* ========================================
        START
-    ========================= */
+    ======================================== */
 
     checkAll();
+
 
 </script>
 
