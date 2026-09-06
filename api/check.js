@@ -1,80 +1,81 @@
 import net from "net";
 
+const SERVERS = {
+  ch: {
+    name: "Switzerland",
+    host: "31.76.4.168",
+    port: 25558
+  },
+  pl: {
+    name: "Poland",
+    host: "2.26.255.84",
+    port: 27489
+  }
+};
+
 export default function handler(req, res) {
-    const url = new URL(
-        req.url,
-        "https://localhost"
-    );
+  res.setHeader("Cache-Control", "no-store");
 
-    const host = url.searchParams.get("host");
-    const port = Number(
-        url.searchParams.get("port")
-    );
+  const url = new URL(req.url, "http://localhost");
+  const server = url.searchParams.get("server");
 
-    if (!host || !port) {
-        return res.status(400).json({
-            error: "host and port required"
-        });
-    }
-
-    const socket = new net.Socket();
-    const start = Date.now();
-
-    let finished = false;
-
-    const done = (data) => {
-        if (finished) return;
-
-        finished = true;
-
-        try {
-            socket.destroy();
-        } catch {}
-
-        res.status(200).json(data);
-    };
-
-    socket.setTimeout(5000);
-
-    socket.on("connect", () => {
-        done({
-            status: "online",
-            host: host,
-            port: port,
-            response_time_ms:
-                Date.now() - start
-        });
+  if (!server || !SERVERS[server]) {
+    return res.status(400).json({
+      error: "Invalid server. Use ?server=ch or ?server=pl"
     });
+  }
 
-    socket.on("timeout", () => {
-        done({
-            status: "offline",
-            host: host,
-            port: port,
-            response_time_ms: null,
-            error: "timeout"
-        });
+  const target = SERVERS[server];
+  const socket = new net.Socket();
+
+  const started = Date.now();
+  let finished = false;
+
+  const finish = (data) => {
+    if (finished) return;
+    finished = true;
+
+    socket.destroy();
+
+    return res.status(200).json({
+      server,
+      ...target,
+      ...data
     });
+  };
 
-    socket.on("error", (err) => {
-        done({
-            status: "offline",
-            host: host,
-            port: port,
-            response_time_ms: null,
-            error: err.code || "connection_failed"
-        });
+  socket.setTimeout(5000);
+
+  socket.once("connect", () => {
+    finish({
+      status: "online",
+      response_time_ms: Date.now() - started
     });
+  });
 
-    try {
-        socket.connect(port, host);
-    } catch (err) {
-        done({
-            status: "offline",
-            host: host,
-            port: port,
-            response_time_ms: null,
-            error: err.message
-        });
-    }
+  socket.once("timeout", () => {
+    finish({
+      status: "offline",
+      response_time_ms: null,
+      error: "timeout"
+    });
+  });
+
+  socket.once("error", (err) => {
+    finish({
+      status: "offline",
+      response_time_ms: null,
+      error: err.code || "connection_failed"
+    });
+  });
+
+  try {
+    socket.connect(target.port, target.host);
+  } catch (err) {
+    finish({
+      status: "offline",
+      response_time_ms: null,
+      error: err.message
+    });
+  }
 }
