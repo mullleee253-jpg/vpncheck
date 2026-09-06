@@ -7,21 +7,24 @@ const SERVERS = ["ch", "pl"];
 function formatDuration(seconds) {
     seconds = Math.max(
         0,
-        Math.floor(seconds || 0)
+        Math.floor(Number(seconds || 0))
     );
 
-    const days =
-        Math.floor(seconds / 86400);
+    const days = Math.floor(
+        seconds / 86400
+    );
 
     seconds %= 86400;
 
-    const hours =
-        Math.floor(seconds / 3600);
+    const hours = Math.floor(
+        seconds / 3600
+    );
 
     seconds %= 3600;
 
-    const minutes =
-        Math.floor(seconds / 60);
+    const minutes = Math.floor(
+        seconds / 60
+    );
 
     if (days > 0) {
         return `${days}д ${hours}ч`;
@@ -35,17 +38,21 @@ function formatDuration(seconds) {
 }
 
 function uptimePercent(state) {
-    const total =
-        (state.online_seconds || 0) +
-        (state.offline_seconds || 0);
+    const online =
+        Number(state.online_seconds || 0);
 
-    if (!total) return 100;
+    const offline =
+        Number(state.offline_seconds || 0);
+
+    const total =
+        online + offline;
+
+    if (total <= 0) {
+        return 100;
+    }
 
     return Number(
-        (
-            (state.online_seconds / total) *
-            100
-        ).toFixed(2)
+        ((online / total) * 100).toFixed(2)
     );
 }
 
@@ -54,16 +61,18 @@ export default async function handler(req, res) {
         const result = {};
 
         for (const key of SERVERS) {
-            const state =
-                await redis.get(
-                    `vpn:server:${key}`
-                );
+            const state = await redis.get(
+                `vpn:server:${key}`
+            );
 
             if (!state) {
                 result[key] = {
                     initialized: false,
                     status: "unknown",
-                    uptime_percent: null
+                    uptime_percent: null,
+                    stable_seconds: 0,
+                    current_downtime: 0,
+                    incidents: 0
                 };
 
                 continue;
@@ -72,14 +81,14 @@ export default async function handler(req, res) {
             let stableSeconds = 0;
 
             if (
-                state.status === "online"
+                state.status === "online" &&
+                state.stable_since
             ) {
                 stableSeconds =
                     Math.floor(
-                        (
-                            Date.now() -
-                            state.last_up
-                        ) / 1000
+                        (Date.now() -
+                            Number(state.stable_since)) /
+                            1000
                     );
             }
 
@@ -91,27 +100,39 @@ export default async function handler(req, res) {
             ) {
                 currentDowntime =
                     Math.floor(
-                        (
-                            Date.now() -
-                            state.current_incident_start
-                        ) / 1000
+                        (Date.now() -
+                            Number(
+                                state.current_incident_start
+                            )) /
+                            1000
                     );
             }
 
             result[key] = {
                 initialized: true,
 
-                status:
-                    state.status,
+                server: key,
+
+                name: state.name,
+
+                host: state.host,
+
+                port: state.port,
+
+                status: state.status,
 
                 uptime_percent:
                     uptimePercent(state),
 
                 online_seconds:
-                    state.online_seconds,
+                    Number(
+                        state.online_seconds || 0
+                    ),
 
                 offline_seconds:
-                    state.offline_seconds,
+                    Number(
+                        state.offline_seconds || 0
+                    ),
 
                 stable_seconds:
                     stableSeconds,
@@ -120,19 +141,21 @@ export default async function handler(req, res) {
                     currentDowntime,
 
                 incidents:
-                    state.incidents,
+                    Number(
+                        state.incidents || 0
+                    ),
 
                 last_latency:
-                    state.last_latency,
+                    state.last_latency ?? null,
 
                 last_check:
-                    state.last_check,
+                    state.last_check ?? null,
 
                 last_down:
-                    state.last_down,
+                    state.last_down ?? null,
 
                 last_up:
-                    state.last_up,
+                    state.last_up ?? null,
 
                 stable_text:
                     formatDuration(
@@ -153,7 +176,10 @@ export default async function handler(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
+        console.error(
+            "STATUS ERROR:",
+            error
+        );
 
         return res.status(500).json({
             ok: false,
