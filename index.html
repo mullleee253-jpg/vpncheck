@@ -1,1488 +1,1385 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>VPN Monitor</title>
-    <meta name="description" content="Real-time VPN server monitoring">
-
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
-        :root {
-            --bg: #07090d;
-            --panel: rgba(16, 19, 26, .72);
-            --panel-strong: rgba(20, 24, 32, .9);
-            --border: rgba(255,255,255,.08);
-            --text: #f5f7fb;
-            --muted: #8b93a3;
-            --green: #35e59a;
-            --red: #ff4d67;
-            --yellow: #ffc857;
-            --blue: #6c8cff;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            min-height: 100vh;
-            background:
-                radial-gradient(circle at 15% 10%, rgba(108,140,255,.12), transparent 28%),
-                radial-gradient(circle at 85% 80%, rgba(53,229,154,.08), transparent 28%),
-                var(--bg);
-            color: var(--text);
-            font-family: Inter, Arial, sans-serif;
-            overflow-x: hidden;
-        }
-
-        /* BACKGROUND */
-
-        .background {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            overflow: hidden;
-            z-index: -1;
-        }
-
-        .orb {
-            position: absolute;
-            width: 420px;
-            height: 420px;
-            border-radius: 50%;
-            filter: blur(100px);
-            opacity: .13;
-            animation: float 12s ease-in-out infinite alternate;
-        }
-
-        .orb.one {
-            background: #526dff;
-            left: -180px;
-            top: -160px;
-        }
-
-        .orb.two {
-            background: #21e6a0;
-            right: -180px;
-            bottom: -180px;
-            animation-delay: -5s;
-        }
-
-        .grid {
-            position: absolute;
-            inset: 0;
-            opacity: .025;
-            background-image:
-                linear-gradient(rgba(255,255,255,.5) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,.5) 1px, transparent 1px);
-            background-size: 50px 50px;
-            mask-image: linear-gradient(to bottom, black, transparent);
-        }
-
-        @keyframes float {
-            from {
-                transform: translate3d(0,0,0) scale(1);
-            }
-            to {
-                transform: translate3d(60px,40px,0) scale(1.15);
-            }
-        }
-
-        /* APP */
-
-        .app {
-            width: min(1180px, calc(100% - 36px));
-            margin: auto;
-            padding: 34px 0 50px;
-        }
-
-        /* HEADER */
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 34px;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 13px;
-        }
-
-        .brand-logo {
-            width: 46px;
-            height: 46px;
-            display: grid;
-            place-items: center;
-            border-radius: 14px;
-            background: linear-gradient(135deg, #ffffff, #9da8ff);
-            color: #07090d;
-            font-size: 21px;
-            font-weight: 800;
-            box-shadow: 0 0 35px rgba(108,140,255,.2);
-        }
-
-        .brand h1 {
-            font-size: 17px;
-            font-weight: 700;
-            letter-spacing: -.4px;
-        }
-
-        .brand span {
-            display: block;
-            color: var(--muted);
-            font-size: 12px;
-            margin-top: 3px;
-        }
-
-        .live {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            padding: 9px 13px;
-            border: 1px solid rgba(53,229,154,.15);
-            background: rgba(53,229,154,.055);
-            border-radius: 999px;
-            color: #b8f8dc;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .live-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: var(--green);
-            box-shadow: 0 0 12px var(--green);
-            animation: pulse 1.8s infinite;
-        }
-
-        @keyframes pulse {
-            50% {
-                opacity: .35;
-                transform: scale(.75);
-            }
-        }
-
-        /* HERO */
-
-        .hero {
-            position: relative;
-            padding: 38px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border);
-            border-radius: 28px;
-            background:
-                linear-gradient(135deg, rgba(255,255,255,.055), rgba(255,255,255,.015)),
-                var(--panel);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            overflow: hidden;
-        }
-
-        .hero::after {
-            content: "";
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            right: -100px;
-            top: -180px;
-            background: rgba(108,140,255,.14);
-            filter: blur(70px);
-            border-radius: 50%;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 30px;
-        }
-
-        .eyebrow {
-            color: #8e9bff;
-            text-transform: uppercase;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1.8px;
-            margin-bottom: 12px;
-        }
-
-        .hero h2 {
-            font-size: clamp(30px, 5vw, 49px);
-            line-height: 1.02;
-            letter-spacing: -2.5px;
-            margin-bottom: 13px;
-        }
-
-        .hero p {
-            max-width: 570px;
-            color: var(--muted);
-            font-size: 14px;
-            line-height: 1.7;
-        }
-
-        .system-status {
-            min-width: 220px;
-            padding: 20px;
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            background: rgba(0,0,0,.16);
-        }
-
-        .system-status small {
-            color: var(--muted);
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .system-main {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 9px;
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .system-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--green);
-            box-shadow: 0 0 15px var(--green);
-        }
-
-        .system-indicator.offline {
-            background: var(--red);
-            box-shadow: 0 0 15px var(--red);
-        }
-
-        /* TOOLBAR */
-
-        .toolbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin: 26px 2px 13px;
-        }
-
-        .toolbar-title {
-            font-size: 13px;
-            color: var(--muted);
-            font-weight: 600;
-        }
-
-        .refresh {
-            border: 1px solid var(--border);
-            color: var(--text);
-            background: rgba(255,255,255,.045);
-            padding: 10px 15px;
-            border-radius: 12px;
-            font-family: inherit;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: .25s ease;
-        }
-
-        .refresh:hover {
-            background: rgba(255,255,255,.09);
-            transform: translateY(-2px);
-            border-color: rgba(255,255,255,.15);
-        }
-
-        .refresh:active {
-            transform: translateY(0) scale(.97);
-        }
-
-        .refresh.loading .refresh-icon {
-            display: inline-block;
-            animation: spin .8s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* SERVER GRID */
-
-        .servers {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 18px;
-        }
-
-        .server {
-            position: relative;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            background:
-                linear-gradient(145deg, rgba(255,255,255,.055), rgba(255,255,255,.018)),
-                var(--panel);
-            backdrop-filter: blur(22px);
-            -webkit-backdrop-filter: blur(22px);
-            padding: 24px;
-            transition:
-                transform .35s cubic-bezier(.2,.8,.2,1),
-                border-color .35s ease,
-                background .35s ease,
-                box-shadow .35s ease;
-        }
-
-        .server:hover {
-            transform: translateY(-5px);
-            border-color: rgba(255,255,255,.14);
-            box-shadow: 0 25px 70px rgba(0,0,0,.28);
-        }
-
-        .server::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            background: linear-gradient(
-                120deg,
-                transparent 25%,
-                rgba(255,255,255,.035) 50%,
-                transparent 75%
-            );
-            transform: translateX(-100%);
-            transition: transform .8s ease;
-        }
-
-        .server:hover::before {
-            transform: translateX(100%);
-        }
-
-        .server.offline {
-            border-color: rgba(255,77,103,.28);
-            background:
-                linear-gradient(145deg, rgba(255,77,103,.075), rgba(255,255,255,.012)),
-                var(--panel);
-            box-shadow: 0 15px 60px rgba(255,77,103,.06);
-        }
-
-        .server-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
-        .country {
-            display: flex;
-            align-items: center;
-            gap: 13px;
-        }
-
-        .flag {
-            width: 50px;
-            height: 50px;
-            display: grid;
-            place-items: center;
-            border-radius: 15px;
-            background: rgba(255,255,255,.055);
-            border: 1px solid rgba(255,255,255,.06);
-            font-size: 25px;
-        }
-
-        .country h3 {
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-
-        .address {
-            color: var(--muted);
-            font-family: monospace;
-            font-size: 11px;
-        }
-
-        .status {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            padding: 8px 10px;
-            border-radius: 999px;
-            background: rgba(53,229,154,.07);
-            color: #a9f3d2;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: .5px;
-        }
-
-        .status-dot {
-            width: 6px;
-            height: 6px;
-            background: var(--green);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--green);
-        }
-
-        .server.offline .status {
-            background: rgba(255,77,103,.1);
-            color: #ff9aaa;
-        }
-
-        .server.offline .status-dot {
-            background: var(--red);
-            box-shadow: 0 0 10px var(--red);
-            animation: pulse-red 1.2s infinite;
-        }
-
-        .checking .status {
-            background: rgba(255,200,87,.08);
-            color: #ffe0a0;
-        }
-
-        .checking .status-dot {
-            background: var(--yellow);
-            box-shadow: 0 0 10px var(--yellow);
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse-red {
-            50% {
-                opacity: .35;
-                transform: scale(.65);
-            }
-        }
-
-        /* METRICS */
-
-        .metrics {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 24px;
-        }
-
-        .metric {
-            padding: 15px;
-            border-radius: 16px;
-            background: rgba(0,0,0,.14);
-            border: 1px solid rgba(255,255,255,.045);
-        }
-
-        .metric-label {
-            color: var(--muted);
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 7px;
-        }
-
-        .metric-value {
-            font-size: 19px;
-            font-weight: 700;
-            letter-spacing: -.5px;
-        }
-
-        .latency-good {
-            color: var(--green);
-        }
-
-        .latency-bad {
-            color: var(--red);
-        }
-
-        .server-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 19px;
-            padding-top: 17px;
-            border-top: 1px solid rgba(255,255,255,.055);
-            color: var(--muted);
-            font-size: 10px;
-        }
-
-        .connection-line {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-        }
-
-        .connection-line span {
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: var(--green);
-        }
-
-        .offline .connection-line span {
-            background: var(--red);
-        }
-
-        /* LOWER INFO */
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1.3fr .7fr;
-            gap: 18px;
-            margin-top: 18px;
-        }
-
-        .info-card {
-            border: 1px solid var(--border);
-            background: rgba(16,19,26,.6);
-            border-radius: 22px;
-            padding: 21px;
-            backdrop-filter: blur(20px);
-        }
-
-        .info-card h4 {
-            font-size: 12px;
-            margin-bottom: 16px;
-            color: #dfe3eb;
-        }
-
-        .uptime-bar {
-            height: 8px;
-            display: flex;
-            gap: 3px;
-        }
-
-        .uptime-segment {
-            flex: 1;
-            border-radius: 4px;
-            background: rgba(53,229,154,.75);
-        }
-
-        .uptime-segment.empty {
-            background: rgba(255,255,255,.07);
-        }
-
-        .uptime-meta {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            color: var(--muted);
-            font-size: 10px;
-        }
-
-        .uptime-percent {
-            color: var(--green);
-            font-weight: 700;
-        }
-
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            gap: 15px;
-        }
-
-        .stat strong {
-            display: block;
-            font-size: 20px;
-            margin-bottom: 5px;
-        }
-
-        .stat span {
-            color: var(--muted);
-            font-size: 10px;
-        }
-
-        /* FOOTER */
-
-        footer {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            color: #656d7c;
-            font-size: 10px;
-            padding: 24px 3px 0;
-        }
-
-        /* RESPONSIVE */
-
-        @media (max-width: 800px) {
-
-            .hero-content {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .system-status {
-                min-width: 0;
-            }
-
-            .servers,
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 520px) {
-
-            .app {
-                width: min(100% - 22px, 1180px);
-                padding-top: 20px;
-            }
-
-            header {
-                margin-bottom: 22px;
-            }
-
-            .brand-logo {
-                width: 40px;
-                height: 40px;
-                border-radius: 12px;
-            }
-
-            .live {
-                padding: 8px 10px;
-            }
-
-            .hero {
-                padding: 24px;
-                border-radius: 22px;
-            }
-
-            .hero h2 {
-                letter-spacing: -1.7px;
-            }
-
-            .toolbar {
-                margin-top: 20px;
-            }
-
-            .server {
-                padding: 19px;
-                border-radius: 21px;
-            }
-
-            .server-top {
-                gap: 10px;
-            }
-
-            .flag {
-                width: 44px;
-                height: 44px;
-            }
-
-            .status {
-                font-size: 9px;
-            }
-
-            footer {
-                flex-direction: column;
-            }
-        }
-
-        /* PAGE LOAD */
-
-        .page-enter {
-            animation: pageEnter .8s cubic-bezier(.2,.8,.2,1) both;
-        }
-
-        @keyframes pageEnter {
-            from {
-                opacity: 0;
-                transform: translateY(12px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .server {
-            animation: cardEnter .7s cubic-bezier(.2,.8,.2,1) both;
-        }
-
-        .server:nth-child(2) {
-            animation-delay: .1s;
-        }
-
-        @keyframes cardEnter {
-            from {
-                opacity: 0;
-                transform: translateY(18px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* RED ALERT */
-
-        .alert {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 20;
-            max-width: 310px;
-            padding: 14px 16px;
-            border-radius: 15px;
-            background: rgba(30,12,17,.92);
-            border: 1px solid rgba(255,77,103,.25);
-            box-shadow: 0 20px 60px rgba(0,0,0,.4);
-            backdrop-filter: blur(20px);
-            transform: translateX(calc(100% + 40px));
-            opacity: 0;
-            transition: .45s cubic-bezier(.2,.8,.2,1);
-            font-size: 12px;
-        }
-
-        .alert.show {
-            transform: translateX(0);
-            opacity: 1;
-        }
-
-        .alert-title {
-            color: #ff8195;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .alert-text {
-            color: #9d7480;
-            line-height: 1.5;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>VPN Status</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+    --bg:#08090b;
+    --surface:#0d0f12;
+    --surface2:#111318;
+    --line:#1c1f24;
+    --line2:#252930;
+    --text:#f1f2f3;
+    --muted:#70757e;
+    --green:#57e39a;
+    --red:#ff536d;
+    --yellow:#e9bd67;
+}
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:Inter,sans-serif;
+    min-height:100vh;
+}
+
+/* subtle background */
+
+body:before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    background:
+        linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+    background-size:72px 72px;
+    mask-image:linear-gradient(to bottom,black,transparent 70%);
+}
+
+/* layout */
+
+.wrapper{
+    width:min(1080px,calc(100% - 40px));
+    margin:auto;
+    padding:42px 0 60px;
+}
+
+/* header */
+
+header{
+    height:58px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:1px solid var(--line);
+    margin-bottom:65px;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.logo-mark{
+    width:27px;
+    height:27px;
+    border:1px solid #454a52;
+    border-radius:7px;
+    display:grid;
+    place-items:center;
+    font-size:11px;
+    color:#bfc3c9;
+}
+
+.logo-name{
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:.2px;
+}
+
+.header-right{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    color:var(--muted);
+    font-family:"DM Mono",monospace;
+    font-size:10px;
+}
+
+.live{
+    display:flex;
+    align-items:center;
+    gap:7px;
+}
+
+.live-dot{
+    width:5px;
+    height:5px;
+    border-radius:50%;
+    background:var(--green);
+    box-shadow:0 0 12px var(--green);
+}
+
+/* intro */
+
+.intro{
+    display:grid;
+    grid-template-columns:1fr 300px;
+    gap:80px;
+    align-items:end;
+    margin-bottom:45px;
+}
+
+.kicker{
+    font-family:"DM Mono",monospace;
+    color:#737981;
+    font-size:10px;
+    letter-spacing:1.8px;
+    text-transform:uppercase;
+    margin-bottom:18px;
+}
+
+h1{
+    font-size:clamp(42px,6vw,67px);
+    line-height:.96;
+    letter-spacing:-4px;
+    font-weight:600;
+}
+
+.description{
+    color:#737880;
+    font-size:13px;
+    line-height:1.8;
+    max-width:430px;
+}
+
+/* main status */
+
+.overall{
+    border-left:1px solid var(--line2);
+    padding-left:28px;
+}
+
+.overall-label{
+    color:var(--muted);
+    font-family:"DM Mono",monospace;
+    font-size:9px;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+    margin-bottom:13px;
+}
+
+.overall-status{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:17px;
+    font-weight:600;
+}
+
+.overall-dot{
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    background:var(--green);
+    box-shadow:0 0 18px rgba(87,227,154,.45);
+    transition:.3s;
+}
+
+.overall-dot.bad{
+    background:var(--red);
+    box-shadow:0 0 18px rgba(255,83,109,.5);
+}
+
+/* toolbar */
+
+.toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+}
+
+.section-name{
+    font-family:"DM Mono",monospace;
+    color:#666b73;
+    font-size:9px;
+    letter-spacing:1.5px;
+}
+
+.refresh{
+    appearance:none;
+    border:1px solid var(--line2);
+    background:transparent;
+    color:#9da2a9;
+    border-radius:6px;
+    padding:8px 12px;
+    font-family:"DM Mono",monospace;
+    font-size:9px;
+    cursor:pointer;
+    transition:.25s;
+}
+
+.refresh:hover{
+    border-color:#3a3e45;
+    color:white;
+    background:#111318;
+}
+
+.refresh:disabled{
+    opacity:.45;
+    cursor:default;
+}
+
+/* servers */
+
+.servers{
+    border-top:1px solid var(--line);
+}
+
+.server{
+    display:grid;
+    grid-template-columns:270px 1fr 160px;
+    min-height:145px;
+    align-items:center;
+    border-bottom:1px solid var(--line);
+    transition:
+        background .35s ease,
+        padding .35s ease;
+    position:relative;
+}
+
+.server:hover{
+    background:rgba(255,255,255,.018);
+}
+
+.server:after{
+    content:"";
+    position:absolute;
+    left:0;
+    bottom:-1px;
+    width:0;
+    height:1px;
+    background:#555b64;
+    transition:width .45s ease;
+}
+
+.server:hover:after{
+    width:100%;
+}
+
+.server.offline{
+    background:rgba(255,83,109,.025);
+}
+
+.server.offline:after{
+    width:100%;
+    background:var(--red);
+}
+
+/* country */
+
+.country{
+    display:flex;
+    align-items:center;
+    gap:16px;
+}
+
+.country-code{
+    width:42px;
+    height:42px;
+    border:1px solid var(--line2);
+    border-radius:9px;
+    display:grid;
+    place-items:center;
+    color:#d7d9dc;
+    font-family:"DM Mono",monospace;
+    font-size:11px;
+    transition:.3s;
+}
+
+.server:hover .country-code{
+    border-color:#40444b;
+    transform:translateY(-2px);
+}
+
+.country-name{
+    font-size:14px;
+    font-weight:500;
+    margin-bottom:6px;
+}
+
+.address{
+    color:#60656d;
+    font-family:"DM Mono",monospace;
+    font-size:9px;
+}
+
+/* center */
+
+.center{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:30px;
+    padding-right:50px;
+}
+
+.metric-label{
+    font-family:"DM Mono",monospace;
+    color:#5f646c;
+    font-size:8px;
+    letter-spacing:1.3px;
+    text-transform:uppercase;
+    margin-bottom:9px;
+}
+
+.metric-value{
+    font-family:"DM Mono",monospace;
+    font-size:13px;
+    color:#c6c9ce;
+}
+
+.green{
+    color:var(--green);
+}
+
+.red{
+    color:var(--red);
+}
+
+/* status */
+
+.server-status{
+    justify-self:end;
+    text-align:right;
+}
+
+.status-line{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    gap:8px;
+    font-family:"DM Mono",monospace;
+    font-size:9px;
+    letter-spacing:1px;
+}
+
+.status-dot{
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:var(--green);
+    box-shadow:0 0 12px rgba(87,227,154,.5);
+}
+
+.offline .status-dot{
+    background:var(--red);
+    box-shadow:0 0 12px rgba(255,83,109,.55);
+    animation:redPulse 1.3s infinite;
+}
+
+.checking .status-dot{
+    background:var(--yellow);
+    box-shadow:0 0 12px rgba(233,189,103,.4);
+    animation:checking .8s infinite alternate;
+}
+
+@keyframes redPulse{
+    50%{
+        opacity:.3;
+        transform:scale(.6);
+    }
+}
+
+@keyframes checking{
+    from{opacity:.3}
+    to{opacity:1}
+}
+
+.status-text{
+    color:#9ca1a8;
+}
+
+.offline .status-text{
+    color:var(--red);
+}
+
+/* bottom */
+
+.bottom{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:30px;
+}
+
+.panel{
+    border:1px solid var(--line);
+    background:var(--surface);
+    padding:22px;
+    border-radius:8px;
+}
+
+.panel-title{
+    font-family:"DM Mono",monospace;
+    font-size:9px;
+    letter-spacing:1.3px;
+    color:#646970;
+    text-transform:uppercase;
+    margin-bottom:22px;
+}
+
+/* graph */
+
+.graph{
+    height:48px;
+    display:flex;
+    align-items:end;
+    gap:4px;
+}
+
+.bar{
+    flex:1;
+    height:35%;
+    min-width:3px;
+    background:#30343a;
+    border-radius:2px;
+    transition:
+        height .5s ease,
+        background .3s ease;
+}
+
+.bar.good{
+    background:rgba(87,227,154,.55);
+}
+
+.bar.bad{
+    background:rgba(255,83,109,.65);
+}
+
+/* stats */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+}
+
+.stat{
+    border-right:1px solid var(--line);
+    padding-left:17px;
+}
+
+.stat:first-child{
+    padding-left:0;
+}
+
+.stat:last-child{
+    border:0;
+}
+
+.stat-number{
+    font-family:"DM Mono",monospace;
+    font-size:20px;
+    margin-bottom:6px;
+}
+
+.stat-label{
+    color:#5f646b;
+    font-size:9px;
+}
+
+/* footer */
+
+footer{
+    display:flex;
+    justify-content:space-between;
+    margin-top:24px;
+    color:#4f545b;
+    font-family:"DM Mono",monospace;
+    font-size:8px;
+    letter-spacing:.4px;
+}
+
+/* notification */
+
+.notification{
+    position:fixed;
+    right:24px;
+    top:24px;
+    width:285px;
+    padding:15px 17px;
+    border:1px solid rgba(255,83,109,.25);
+    background:#100b0d;
+    border-radius:7px;
+    transform:translateY(-20px);
+    opacity:0;
+    pointer-events:none;
+    transition:.4s cubic-bezier(.2,.8,.2,1);
+}
+
+.notification.show{
+    transform:translateY(0);
+    opacity:1;
+}
+
+.notification-title{
+    color:var(--red);
+    font-size:11px;
+    font-weight:600;
+    margin-bottom:5px;
+}
+
+.notification-text{
+    color:#777078;
+    font-size:10px;
+    line-height:1.5;
+}
+
+/* mobile */
+
+@media(max-width:760px){
+
+    .wrapper{
+        width:calc(100% - 28px);
+        padding-top:22px;
+    }
+
+    header{
+        margin-bottom:45px;
+    }
+
+    .header-right{
+        gap:9px;
+    }
+
+    .intro{
+        display:block;
+        margin-bottom:38px;
+    }
+
+    h1{
+        font-size:45px;
+        letter-spacing:-3px;
+        margin-bottom:25px;
+    }
+
+    .overall{
+        border-left:0;
+        border-top:1px solid var(--line);
+        padding:18px 0 0;
+    }
+
+    .server{
+        display:block;
+        padding:22px 0;
+    }
+
+    .server:hover{
+        padding-left:5px;
+        padding-right:5px;
+    }
+
+    .center{
+        margin:24px 0;
+        padding:0;
+    }
+
+    .server-status{
+        text-align:left;
+    }
+
+    .status-line{
+        justify-content:flex-start;
+    }
+
+    .bottom{
+        grid-template-columns:1fr;
+    }
+
+    footer{
+        flex-direction:column;
+        gap:8px;
+    }
+}
+</style>
 </head>
 
 <body>
 
-<div class="background">
-    <div class="orb one"></div>
-    <div class="orb two"></div>
-    <div class="grid"></div>
+<div class="notification" id="notification">
+    <div class="notification-title">SERVER OFFLINE</div>
+    <div class="notification-text" id="notificationText"></div>
 </div>
 
-<div id="alert" class="alert">
-    <div class="alert-title">⚠ Server offline</div>
-    <div id="alertText" class="alert-text"></div>
-</div>
+<main class="wrapper">
 
-<main class="app page-enter">
+<header>
 
-    <header>
-        <div class="brand">
-            <div class="brand-logo">◈</div>
+    <div class="logo">
+        <div class="logo-mark">V</div>
+        <div class="logo-name">VPN Status</div>
+    </div>
 
-            <div>
-                <h1>VPN Monitor</h1>
-                <span>Infrastructure status</span>
-            </div>
-        </div>
+    <div class="header-right">
+        <div id="clock">--:--:--</div>
 
         <div class="live">
             <span class="live-dot"></span>
-            LIVE MONITORING
+            LIVE
         </div>
-    </header>
+    </div>
+
+</header>
 
 
-    <section class="hero">
+<section class="intro">
 
-        <div class="hero-content">
+    <div>
 
-            <div>
-                <div class="eyebrow">Network control center</div>
-
-                <h2>
-                    Server status<br>
-                    in real time.
-                </h2>
-
-                <p>
-                    Мониторинг доступности VPN-серверов,
-                    состояния TCP-соединения и времени ответа.
-                    Проверка выполняется автоматически.
-                </p>
-            </div>
-
-
-            <div class="system-status">
-
-                <small>System status</small>
-
-                <div class="system-main">
-                    <span id="systemIndicator" class="system-indicator"></span>
-                    <span id="systemText">Checking...</span>
-                </div>
-
-            </div>
-
+        <div class="kicker">
+            Infrastructure / Monitoring
         </div>
 
-    </section>
+        <h1>
+            Network<br>
+            status.
+        </h1>
 
-
-    <div class="toolbar">
-
-        <div class="toolbar-title">
-            SERVERS · 2 NODES
-        </div>
-
-        <button id="refreshBtn" class="refresh">
-            <span class="refresh-icon">↻</span>
-            &nbsp;Проверить
-        </button>
+        <p class="description">
+            Real-time availability monitoring for VPN infrastructure.
+            TCP connectivity and response time are checked automatically.
+        </p>
 
     </div>
 
 
-    <section class="servers">
+    <div class="overall">
 
-        <!-- SWITZERLAND -->
+        <div class="overall-label">
+            Overall system
+        </div>
 
-        <article id="card-ch" class="server">
+        <div class="overall-status">
 
-            <div class="server-top">
+            <span
+                id="overallDot"
+                class="overall-dot">
+            </span>
 
-                <div class="country">
+            <span id="overallText">
+                Checking
+            </span>
 
-                    <div class="flag">
-                        🇨🇭
-                    </div>
+        </div>
 
-                    <div>
-                        <h3>Switzerland</h3>
+    </div>
 
-                        <div class="address">
-                            31.76.4.168:25558
-                        </div>
-                    </div>
-
-                </div>
+</section>
 
 
-                <div id="status-ch" class="status checking">
+<div class="toolbar">
 
-                    <span class="status-dot"></span>
+    <div class="section-name">
+        NODES / 02
+    </div>
 
-                    <span class="status-text">
-                        CHECKING
-                    </span>
+    <button
+        class="refresh"
+        id="refreshBtn">
 
-                </div>
+        ↻ &nbsp; CHECK NOW
 
+    </button>
+
+</div>
+
+
+<section class="servers">
+
+
+<!-- SWITZERLAND -->
+
+<article
+    class="server checking"
+    id="card-ch">
+
+    <div class="country">
+
+        <div class="country-code">
+            CH
+        </div>
+
+        <div>
+
+            <div class="country-name">
+                Switzerland
             </div>
 
-
-            <div class="metrics">
-
-                <div class="metric">
-
-                    <div class="metric-label">
-                        Status
-                    </div>
-
-                    <div id="state-ch" class="metric-value">
-                        —
-                    </div>
-
-                </div>
-
-
-                <div class="metric">
-
-                    <div class="metric-label">
-                        Latency
-                    </div>
-
-                    <div id="latency-ch" class="metric-value">
-                        —
-                    </div>
-
-                </div>
-
+            <div class="address">
+                31.76.4.168:25558
             </div>
 
+        </div>
 
-            <div class="server-footer">
+    </div>
 
-                <div class="connection-line">
-                    <span></span>
-                    TCP connection
-                </div>
 
-                <div id="updated-ch">
-                    Waiting...
-                </div>
+    <div class="center">
 
+        <div>
+
+            <div class="metric-label">
+                Connection
             </div>
 
-        </article>
+            <div
+                id="state-ch"
+                class="metric-value">
 
+                CHECKING
 
-        <!-- POLAND -->
-
-        <article id="card-pl" class="server">
-
-            <div class="server-top">
-
-                <div class="country">
-
-                    <div class="flag">
-                        🇵🇱
-                    </div>
-
-                    <div>
-                        <h3>Poland</h3>
-
-                        <div class="address">
-                            2.26.255.84:27489
-                        </div>
-                    </div>
-
-                </div>
-
-
-                <div id="status-pl" class="status checking">
-
-                    <span class="status-dot"></span>
-
-                    <span class="status-text">
-                        CHECKING
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <div class="metrics">
-
-                <div class="metric">
-
-                    <div class="metric-label">
-                        Status
-                    </div>
-
-                    <div id="state-pl" class="metric-value">
-                        —
-                    </div>
-
-                </div>
-
-
-                <div class="metric">
-
-                    <div class="metric-label">
-                        Latency
-                    </div>
-
-                    <div id="latency-pl" class="metric-value">
-                        —
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="server-footer">
-
-                <div class="connection-line">
-                    <span></span>
-                    TCP connection
-                </div>
-
-                <div id="updated-pl">
-                    Waiting...
-                </div>
-
-            </div>
-
-        </article>
-
-    </section>
-
-
-    <!-- LOWER INFORMATION -->
-
-    <section class="info-grid">
-
-        <div class="info-card">
-
-            <h4>Availability overview</h4>
-
-            <div id="uptimeBar" class="uptime-bar">
-
-                <div class="uptime-segment"></div>
-                <div class="uptime-segment"></div>
-                <div class="uptime-segment"></div>
-                <div class="uptime-segment"></div>
-                <div class="uptime-segment"></div>
-                <div class="uptime-segment"></div>
-                <div class="uptime-segment"></div>
-                <div class="uptime-segment"></div>
-                <div class="uptime-segment"></div>
-                <div class="uptime-segment"></div>
-                <div class="uptime-segment"></div>
-                <div class="uptime-segment"></div>
-
-            </div>
-
-            <div class="uptime-meta">
-                <span>Recent checks</span>
-                <span id="uptimePercent" class="uptime-percent">100%</span>
             </div>
 
         </div>
 
 
-        <div class="info-card">
+        <div>
 
-            <h4>Live metrics</h4>
+            <div class="metric-label">
+                Response
+            </div>
 
-            <div class="stats">
+            <div
+                id="latency-ch"
+                class="metric-value">
 
-                <div class="stat">
-                    <strong id="onlineCount">—</strong>
-                    <span>ONLINE</span>
-                </div>
-
-                <div class="stat">
-                    <strong id="offlineCount">—</strong>
-                    <span>OFFLINE</span>
-                </div>
-
-                <div class="stat">
-                    <strong id="checkCount">0</strong>
-                    <span>CHECKS</span>
-                </div>
+                —
 
             </div>
 
         </div>
 
-    </section>
+    </div>
 
 
-    <footer>
+    <div class="server-status">
 
-        <span>
-            VPN Monitor · TCP health check
-        </span>
+        <div class="status-line">
 
-        <span id="lastUpdate">
-            Last update: —
-        </span>
+            <span
+                id="dot-ch"
+                class="status-dot">
+            </span>
 
-    </footer>
+            <span
+                id="status-ch"
+                class="status-text">
+
+                CHECKING
+
+            </span>
+
+        </div>
+
+    </div>
+
+</article>
+
+
+<!-- POLAND -->
+
+<article
+    class="server checking"
+    id="card-pl">
+
+    <div class="country">
+
+        <div class="country-code">
+            PL
+        </div>
+
+        <div>
+
+            <div class="country-name">
+                Poland
+            </div>
+
+            <div class="address">
+                2.26.255.84:27489
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="center">
+
+        <div>
+
+            <div class="metric-label">
+                Connection
+            </div>
+
+            <div
+                id="state-pl"
+                class="metric-value">
+
+                CHECKING
+
+            </div>
+
+        </div>
+
+
+        <div>
+
+            <div class="metric-label">
+                Response
+            </div>
+
+            <div
+                id="latency-pl"
+                class="metric-value">
+
+                —
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="server-status">
+
+        <div class="status-line">
+
+            <span
+                id="dot-pl"
+                class="status-dot">
+            </span>
+
+            <span
+                id="status-pl"
+                class="status-text">
+
+                CHECKING
+
+            </span>
+
+        </div>
+
+    </div>
+
+</article>
+
+</section>
+
+
+<section class="bottom">
+
+
+<!-- HISTORY -->
+
+<div class="panel">
+
+    <div class="panel-title">
+        Availability history
+    </div>
+
+    <div
+        class="graph"
+        id="graph">
+
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+
+    </div>
+
+</div>
+
+
+<!-- STATS -->
+
+<div class="panel">
+
+    <div class="panel-title">
+        Current metrics
+    </div>
+
+    <div class="stats">
+
+        <div class="stat">
+
+            <div
+                id="online"
+                class="stat-number">
+
+                —
+
+            </div>
+
+            <div class="stat-label">
+                ONLINE
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div
+                id="offline"
+                class="stat-number">
+
+                —
+
+            </div>
+
+            <div class="stat-label">
+                OFFLINE
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div
+                id="checks"
+                class="stat-number">
+
+                0
+
+            </div>
+
+            <div class="stat-label">
+                CHECKS
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+
+<footer>
+
+    <span>
+        TCP HEALTH MONITOR
+    </span>
+
+    <span id="updated">
+        LAST CHECK — 
+    </span>
+
+</footer>
 
 </main>
 
 
 <script>
 
-    const servers = ["ch", "pl"];
+const servers = ["ch","pl"];
 
-    let checks = 0;
+let checkCount = 0;
 
-    let history = [];
-
-    const refreshBtn =
-        document.getElementById("refreshBtn");
-
-    const systemText =
-        document.getElementById("systemText");
-
-    const systemIndicator =
-        document.getElementById("systemIndicator");
-
-    const onlineCount =
-        document.getElementById("onlineCount");
-
-    const offlineCount =
-        document.getElementById("offlineCount");
-
-    const checkCount =
-        document.getElementById("checkCount");
-
-    const lastUpdate =
-        document.getElementById("lastUpdate");
-
-    const uptimePercent =
-        document.getElementById("uptimePercent");
-
-    const alertBox =
-        document.getElementById("alert");
-
-    const alertText =
-        document.getElementById("alertText");
+let history = [];
 
 
-    function setChecking(server) {
+const refreshBtn =
+    document.getElementById("refreshBtn");
 
-        const card =
-            document.getElementById("card-" + server);
+const overallText =
+    document.getElementById("overallText");
 
-        const status =
-            document.getElementById("status-" + server);
+const overallDot =
+    document.getElementById("overallDot");
 
-        const state =
-            document.getElementById("state-" + server);
+const online =
+    document.getElementById("online");
 
-        const latency =
-            document.getElementById("latency-" + server);
+const offline =
+    document.getElementById("offline");
+
+const checks =
+    document.getElementById("checks");
+
+const updated =
+    document.getElementById("updated");
+
+const notification =
+    document.getElementById("notification");
+
+const notificationText =
+    document.getElementById("notificationText");
+
+
+/* clock */
+
+function updateClock(){
+
+    const now = new Date();
+
+    document.getElementById("clock")
+        .textContent =
+        now.toLocaleTimeString(
+            "ru-RU",
+            {
+                hour:"2-digit",
+                minute:"2-digit",
+                second:"2-digit"
+            }
+        );
+}
+
+setInterval(updateClock,1000);
+
+updateClock();
+
+
+/* checking state */
+
+function setChecking(id){
+
+    const card =
+        document.getElementById("card-"+id);
+
+    const state =
+        document.getElementById("state-"+id);
+
+    const latency =
+        document.getElementById("latency-"+id);
+
+    const status =
+        document.getElementById("status-"+id);
+
+    card.classList.remove("offline");
+    card.classList.add("checking");
+
+    state.textContent = "CHECKING";
+    state.className = "metric-value";
+
+    latency.textContent = "—";
+    latency.className = "metric-value";
+
+    status.textContent = "CHECKING";
+}
+
+
+/* result */
+
+function setResult(id,data){
+
+    const card =
+        document.getElementById("card-"+id);
+
+    const state =
+        document.getElementById("state-"+id);
+
+    const latency =
+        document.getElementById("latency-"+id);
+
+    const status =
+        document.getElementById("status-"+id);
+
+
+    card.classList.remove("checking");
+
+
+    if(data.status === "online"){
 
         card.classList.remove("offline");
-        card.classList.add("checking");
 
-        status.className = "status checking";
+        state.textContent = "ONLINE";
+        state.className =
+            "metric-value green";
 
-        status.innerHTML = `
-            <span class="status-dot"></span>
-            <span class="status-text">CHECKING</span>
-        `;
+        latency.textContent =
+            Math.round(
+                data.response_time_ms
+            ) + " ms";
 
-        state.textContent = "Checking...";
-        state.className = "metric-value";
+        latency.className =
+            "metric-value green";
 
-        latency.textContent = "—";
-        latency.className = "metric-value";
+        status.textContent =
+            "ONLINE";
+
+        return true;
 
     }
 
 
-    function setResult(server, data) {
+    card.classList.add("offline");
 
-        const card =
-            document.getElementById("card-" + server);
+    state.textContent = "OFFLINE";
 
-        const status =
-            document.getElementById("status-" + server);
+    state.className =
+        "metric-value red";
 
-        const state =
-            document.getElementById("state-" + server);
+    latency.textContent =
+        "DOWN";
 
-        const latency =
-            document.getElementById("latency-" + server);
+    latency.className =
+        "metric-value red";
 
-        const updated =
-            document.getElementById("updated-" + server);
+    status.textContent =
+        "OFFLINE";
 
-
-        card.classList.remove("checking");
-
-
-        if (data.status === "online") {
-
-            card.classList.remove("offline");
-
-            status.className = "status";
-
-            status.innerHTML = `
-                <span class="status-dot"></span>
-                <span class="status-text">ONLINE</span>
-            `;
-
-            state.textContent = "ONLINE";
-            state.className =
-                "metric-value latency-good";
+    return false;
+}
 
 
-            const ms =
-                Math.round(data.response_time_ms);
+/* server check */
 
-            latency.textContent =
-                ms + " ms";
+async function checkServer(id){
 
-            latency.className =
-                "metric-value latency-good";
+    setChecking(id);
 
-            updated.textContent =
-                "Updated just now";
+    try{
 
-            return true;
-
-        } else {
-
-            card.classList.add("offline");
-
-            status.className =
-                "status";
-
-            status.innerHTML = `
-                <span class="status-dot"></span>
-                <span class="status-text">OFFLINE</span>
-            `;
-
-            state.textContent =
-                "OFFLINE";
-
-            state.className =
-                "metric-value latency-bad";
-
-            latency.textContent =
-                "DOWN";
-
-            latency.className =
-                "metric-value latency-bad";
-
-            updated.textContent =
-                "Connection failed";
-
-            return false;
-        }
-    }
-
-
-    async function checkServer(server) {
-
-        setChecking(server);
-
-        try {
-
-            const response =
-                await fetch(
-                    "/api/check?server=" +
-                    server +
-                    "&t=" +
-                    Date.now(),
-                    {
-                        cache: "no-store"
-                    }
-                );
-
-
-            if (!response.ok) {
-                throw new Error(
-                    "HTTP " + response.status
-                );
-            }
-
-
-            const data =
-                await response.json();
-
-
-            return setResult(
-                server,
-                data
-            );
-
-        } catch (error) {
-
-            return setResult(
-                server,
+        const response =
+            await fetch(
+                "/api/check?server="+
+                id+
+                "&t="+
+                Date.now(),
                 {
-                    status: "offline",
-                    error: error.message
-                }
-            );
-        }
-    }
-
-
-    function updateOverview(results) {
-
-        const online =
-            results.filter(Boolean).length;
-
-        const offline =
-            results.length - online;
-
-
-        onlineCount.textContent =
-            online;
-
-        offlineCount.textContent =
-            offline;
-
-        checkCount.textContent =
-            checks;
-
-
-        if (offline === 0) {
-
-            systemText.textContent =
-                "All systems operational";
-
-            systemIndicator.classList.remove(
-                "offline"
-            );
-
-        } else if (online === 0) {
-
-            systemText.textContent =
-                "All servers offline";
-
-            systemIndicator.classList.add(
-                "offline"
-            );
-
-        } else {
-
-            systemText.textContent =
-                offline + " server offline";
-
-            systemIndicator.classList.add(
-                "offline"
-            );
-        }
-
-
-        const now =
-            new Date();
-
-        lastUpdate.textContent =
-            "Last update: " +
-            now.toLocaleTimeString(
-                "ru-RU",
-                {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit"
+                    cache:"no-store"
                 }
             );
 
 
-        history.push(
-            offline === 0
-        );
-
-        if (history.length > 12) {
-            history.shift();
-        }
-
-
-        const segments =
-            document.querySelectorAll(
-                ".uptime-segment"
+        if(!response.ok)
+            throw new Error(
+                "HTTP "+response.status
             );
 
 
-        segments.forEach(
-            (segment, index) => {
+        const data =
+            await response.json();
 
-                const value =
-                    history[index];
 
-                segment.classList.toggle(
-                    "empty",
-                    value === false
-                );
+        return setResult(
+            id,
+            data
+        );
+
+
+    }catch(error){
+
+        return setResult(
+            id,
+            {
+                status:"offline"
+            }
+        );
+    }
+}
+
+
+/* graph */
+
+function updateGraph(ok){
+
+    history.push(ok);
+
+    if(history.length > 20)
+        history.shift();
+
+
+    const bars =
+        document.querySelectorAll(".bar");
+
+
+    bars.forEach(
+        (bar,index)=>{
+
+            if(index >= history.length){
+
+                bar.className = "bar";
+                bar.style.height =
+                    (25 + Math.random()*20)+"%";
+
+                return;
+            }
+
+
+            const value =
+                history[index];
+
+
+            bar.className =
+                value
+                ? "bar good"
+                : "bar bad";
+
+
+            bar.style.height =
+                value
+                ? (45 + Math.random()*45)+"%"
+                : "25%";
+        }
+    );
+}
+
+
+/* all */
+
+async function checkAll(){
+
+    refreshBtn.disabled = true;
+
+    const results =
+        await Promise.all(
+            servers.map(
+                checkServer
+            )
+        );
+
+    checkCount++;
+
+    const good =
+        results.filter(Boolean).length;
+
+    const bad =
+        results.length-good;
+
+
+    online.textContent = good;
+    offline.textContent = bad;
+    checks.textContent = checkCount;
+
+
+    /* overall */
+
+    if(bad === 0){
+
+        overallText.textContent =
+            "All systems operational";
+
+        overallDot.classList.remove(
+            "bad"
+        );
+
+    }else if(good === 0){
+
+        overallText.textContent =
+            "All servers offline";
+
+        overallDot.classList.add(
+            "bad"
+        );
+
+    }else{
+
+        overallText.textContent =
+            bad+" server offline";
+
+        overallDot.classList.add(
+            "bad"
+        );
+    }
+
+
+    updateGraph(bad === 0);
+
+
+    const now = new Date();
+
+    updated.textContent =
+        "LAST CHECK "+
+        now.toLocaleTimeString(
+            "ru-RU",
+            {
+                hour:"2-digit",
+                minute:"2-digit",
+                second:"2-digit"
             }
         );
 
 
-        const successful =
-            history.filter(Boolean).length;
+    /* notification */
 
-        const percent =
-            history.length
-                ? Math.round(
-                    successful /
-                    history.length *
-                    100
-                )
-                : 100;
+    if(bad > 0){
 
+        const names = [];
 
-        uptimePercent.textContent =
-            percent + "%";
+        if(!results[0])
+            names.push("Switzerland");
+
+        if(!results[1])
+            names.push("Poland");
 
 
-        if (offline > 0) {
+        notificationText.textContent =
+            names.join(", ") +
+            " is currently unavailable.";
 
-            const names = [];
+        notification.classList.add("show");
 
-            if (!results[0])
-                names.push("Switzerland");
+        clearTimeout(
+            window.notificationTimer
+        );
 
-            if (!results[1])
-                names.push("Poland");
-
-            alertText.textContent =
-                names.join(", ") +
-                " — TCP connection unavailable.";
-
-            alertBox.classList.add("show");
-
-            clearTimeout(
-                window.alertTimer
-            );
-
-            window.alertTimer =
-                setTimeout(() => {
-
-                    alertBox.classList.remove(
+        window.notificationTimer =
+            setTimeout(
+                ()=>{
+                    notification.classList.remove(
                         "show"
                     );
-
-                }, 5000);
-
-        } else {
-
-            alertBox.classList.remove(
-                "show"
+                },
+                5000
             );
-        }
-    }
 
+    }else{
 
-    async function checkAll() {
-
-        refreshBtn.classList.add(
-            "loading"
+        notification.classList.remove(
+            "show"
         );
-
-        refreshBtn.disabled = true;
-
-        try {
-
-            const results =
-                await Promise.all(
-                    servers.map(
-                        server =>
-                            checkServer(server)
-                    )
-                );
-
-            checks++;
-
-            updateOverview(results);
-
-        } finally {
-
-            refreshBtn.classList.remove(
-                "loading"
-            );
-
-            refreshBtn.disabled = false;
-        }
     }
 
 
-    refreshBtn.addEventListener(
-        "click",
-        checkAll
-    );
+    refreshBtn.disabled = false;
+}
 
 
-    checkAll();
+/* manual */
+
+refreshBtn.addEventListener(
+    "click",
+    checkAll
+);
 
 
-    setInterval(
-        checkAll,
-        30000
-    );
+/* initial */
+
+checkAll();
+
+
+/* automatic */
+
+setInterval(
+    checkAll,
+    30000
+);
 
 </script>
 
