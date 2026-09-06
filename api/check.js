@@ -1,252 +1,91 @@
 import net from "net";
 
+const SERVERS = {
+    ch: {
+        host: "31.76.4.168",
+        port: 25558
+    },
+    pl: {
+        host: "2.26.255.84",
+        port: 27489
+    }
+};
 
-const ALLOWED_SERVERS = new Set([
-    "31.76.4.168:25558",
-    "2.26.255.84:27489"
-]);
+export async function tcpCheck(server) {
+    return new Promise((resolve) => {
+        const started = process.hrtime.bigint();
+        const socket = new net.Socket();
 
+        let done = false;
 
-export default async function handler(req, res) {
+        const finish = (result) => {
+            if (done) return;
+            done = true;
 
-    res.setHeader(
-        "Cache-Control",
-        "no-store"
-    );
+            try {
+                socket.destroy();
+            } catch {}
 
+            resolve(result);
+        };
 
-    const host =
-        String(
-            req.query.host || ""
-        ).trim();
+        socket.setTimeout(5000);
 
+        socket.once("connect", () => {
+            const ended = process.hrtime.bigint();
 
-    const port =
-        Number(
-            req.query.port
-        );
+            const ms =
+                Number(ended - started) / 1000000;
 
-
-    /* =========================
-       VALIDATION
-    ========================= */
-
-    if (!host || !req.query.port) {
-
-        return res.status(400).json({
-            status: "error",
-            error: "Missing host or port"
+            finish({
+                status: "online",
+                response_time_ms: Number(ms.toFixed(2))
+            });
         });
 
-    }
-
-
-    if (
-        !Number.isInteger(port) ||
-        port < 1 ||
-        port > 65535
-    ) {
-
-        return res.status(400).json({
-            status: "error",
-            error: "Invalid port"
+        socket.once("timeout", () => {
+            finish({
+                status: "offline",
+                error: "timeout"
+            });
         });
 
-    }
-
-
-    const target =
-        `${host}:${port}`;
-
-
-    /* =========================
-       ALLOWED SERVERS ONLY
-    ========================= */
-
-    if (
-        !ALLOWED_SERVERS.has(target)
-    ) {
-
-        return res.status(403).json({
-            status: "error",
-            error: "Server is not allowed"
+        socket.once("error", (error) => {
+            finish({
+                status: "offline",
+                error: error.code || "connection_failed"
+            });
         });
-
-    }
-
-
-    /* =========================
-       TCP CHECK
-    ========================= */
-
-    const socket =
-        new net.Socket();
-
-
-    const timeout =
-        5000;
-
-
-    const start =
-        process.hrtime.bigint();
-
-
-    let finished = false;
-
-
-    function finish(
-        statusCode,
-        data
-    ) {
-
-        if (finished) {
-            return;
-        }
-
-
-        finished = true;
-
 
         try {
-            socket.destroy();
-        }
-
-        catch {}
-
-
-        return res
-            .status(statusCode)
-            .json(data);
-
-    }
-
-
-    /* =========================
-       TIMEOUT
-    ========================= */
-
-    socket.setTimeout(
-        timeout
-    );
-
-
-    socket.once(
-        "timeout",
-        () => {
-
-            finish(
-                200,
-                {
-                    status: "offline",
-
-                    host,
-
-                    port,
-
-                    error:
-                        "Connection timeout"
-                }
-            );
-
-        }
-    );
-
-
-    /* =========================
-       CONNECTED
-    ========================= */
-
-    socket.once(
-        "connect",
-        () => {
-
-            const end =
-                process.hrtime.bigint();
-
-
-            const responseTime =
-                Number(
-                    end - start
-                ) / 1000000;
-
-
-            finish(
-                200,
-                {
-                    status: "online",
-
-                    host,
-
-                    port,
-
-                    response_time_ms:
-                        Number(
-                            responseTime
-                                .toFixed(2)
-                        )
-                }
-            );
-
-        }
-    );
-
-
-    /* =========================
-       ERROR
-    ========================= */
-
-    socket.once(
-        "error",
-        (error) => {
-
-            finish(
-                200,
-                {
-                    status: "offline",
-
-                    host,
-
-                    port,
-
-                    error:
-                        error.code ||
-                        "Connection failed"
-                }
-            );
-
-        }
-    );
-
-
-    /* =========================
-       CONNECT
-    ========================= */
-
-    try {
-
-        socket.connect({
-            host,
-            port
-        });
-
-    }
-
-    catch (error) {
-
-        finish(
-            200,
-            {
+            socket.connect({
+                host: server.host,
+                port: server.port
+            });
+        } catch (error) {
+            finish({
                 status: "offline",
+                error: error.message
+            });
+        }
+    });
+}
 
-                host,
+export default async function handler(req, res) {
+    const key = req.query.server;
 
-                port,
-
-                error:
-                    error.message
-            }
-        );
-
+    if (!key || !SERVERS[key]) {
+        return res.status(400).json({
+            error: "Invalid server"
+        });
     }
 
+    const result = await tcpCheck(SERVERS[key]);
+
+    return res.status(200).json({
+        server: key,
+        host: SERVERS[key].host,
+        port: SERVERS[key].port,
+        ...result
+    });
 }
