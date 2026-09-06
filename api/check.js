@@ -2,27 +2,34 @@ import net from "net";
 
 const SERVERS = {
     ch: {
-        name: "Switzerland",
         host: "31.76.4.168",
-        port: 25558
+        port: 25558,
+        name: "Switzerland"
     },
 
     pl: {
-        name: "Poland",
         host: "2.26.255.84",
-        port: 27489
+        port: 27489,
+        name: "Poland"
     }
 };
 
-export function tcpCheck(host, port) {
+
+function checkTCP(host, port) {
     return new Promise((resolve) => {
-        const started = process.hrtime.bigint();
+
         const socket = new net.Socket();
+
+        const start = process.hrtime.bigint();
 
         let finished = false;
 
-        const finish = (result) => {
-            if (finished) return;
+
+        function finish(result) {
+
+            if (finished) {
+                return;
+            }
 
             finished = true;
 
@@ -31,142 +38,272 @@ export function tcpCheck(host, port) {
             } catch {}
 
             resolve(result);
-        };
+        }
+
 
         socket.setTimeout(5000);
 
-        socket.once("connect", () => {
-            const ended = process.hrtime.bigint();
 
-            const latency =
-                Number(ended - started) / 1000000;
+        socket.once("connect", () => {
+
+            const end =
+                process.hrtime.bigint();
+
+            const ping =
+                Number(end - start) / 1000000;
+
 
             finish({
                 status: "online",
-                response_time_ms: Number(latency.toFixed(2))
+                response_time_ms:
+                    Number(ping.toFixed(2))
             });
+
         });
+
 
         socket.once("timeout", () => {
+
             finish({
                 status: "offline",
+                response_time_ms: null,
                 error: "timeout"
             });
+
         });
+
 
         socket.once("error", (error) => {
+
             finish({
                 status: "offline",
-                error: error.code || "connection_failed"
+                response_time_ms: null,
+                error:
+                    error.code ||
+                    "connection_failed"
             });
+
         });
 
+
         try {
-            socket.connect({
-                host,
-                port: Number(port)
-            });
+
+            socket.connect(
+                Number(port),
+                host
+            );
+
         } catch (error) {
+
             finish({
                 status: "offline",
+                response_time_ms: null,
                 error: error.message
             });
+
         }
+
     });
 }
 
+
 export default async function handler(req, res) {
+
     try {
+
         const url = new URL(
             req.url,
             `https://${req.headers.host || "localhost"}`
         );
 
-        const serverKey = url.searchParams.get("server");
-
-        const customHost = url.searchParams.get("host");
-        const customPort = url.searchParams.get("port");
-
-        let host;
-        let port;
-        let name;
-        let key;
 
         /*
+         * Поддерживаем:
+         *
          * /api/check?server=ch
          * /api/check?server=pl
-         */
-
-        if (serverKey) {
-            const server = SERVERS[serverKey];
-
-            if (!server) {
-                return res.status(400).json({
-                    ok: false,
-                    error: "Invalid server",
-                    available: Object.keys(SERVERS)
-                });
-            }
-
-            host = server.host;
-            port = server.port;
-            name = server.name;
-            key = serverKey;
-        }
-
-        /*
-         * Поддержка старого frontend:
+         *
+         * И старый frontend:
          *
          * /api/check?host=31.76.4.168&port=25558
+         * /api/check?host=2.26.255.84&port=27489
          */
 
-        else if (customHost && customPort) {
-            host = customHost;
-            port = Number(customPort);
-            name = "Custom";
-            key = "custom";
+
+        const server =
+            url.searchParams.get("server");
+
+        const host =
+            url.searchParams.get("host");
+
+        const port =
+            url.searchParams.get("port");
+
+
+        let targetHost;
+        let targetPort;
+        let serverName;
+        let serverKey;
+
+
+        /*
+         * server=ch / server=pl
+         */
+
+        if (server) {
+
+            if (!SERVERS[server]) {
+
+                return res.status(400).json({
+                    ok: false,
+                    error: "Unknown server"
+                });
+
+            }
+
+
+            targetHost =
+                SERVERS[server].host;
+
+            targetPort =
+                SERVERS[server].port;
+
+            serverName =
+                SERVERS[server].name;
+
+            serverKey =
+                server;
         }
+
+
+        /*
+         * host + port
+         *
+         * Именно этот вариант
+         * сейчас использует твой сайт.
+         */
+
+        else if (host && port) {
+
+            targetHost = host;
+            targetPort = Number(port);
+
+            if (
+                targetHost ===
+                "31.76.4.168" &&
+                targetPort === 25558
+            ) {
+                serverName = "Switzerland";
+                serverKey = "ch";
+            }
+
+            else if (
+                targetHost ===
+                "2.26.255.84" &&
+                targetPort === 27489
+            ) {
+                serverName = "Poland";
+                serverKey = "pl";
+            }
+
+            else {
+                serverName = "Unknown";
+                serverKey = "custom";
+            }
+
+        }
+
+
+        /*
+         * Ничего не передали
+         */
 
         else {
+
             return res.status(400).json({
                 ok: false,
-                error: "Missing server parameters",
-                expected: [
-                    "/api/check?server=ch",
-                    "/api/check?server=pl",
-                    "/api/check?host=31.76.4.168&port=25558"
-                ]
+                error: "Missing host and port"
             });
+
         }
 
+
+        /*
+         * Проверка порта
+         */
+
         if (
-            !Number.isInteger(Number(port)) ||
-            Number(port) < 1 ||
-            Number(port) > 65535
+            !Number.isInteger(
+                Number(targetPort)
+            ) ||
+            Number(targetPort) < 1 ||
+            Number(targetPort) > 65535
         ) {
+
             return res.status(400).json({
                 ok: false,
                 error: "Invalid port"
             });
+
         }
 
-        const result = await tcpCheck(host, Number(port));
+
+        /*
+         * TCP CHECK
+         */
+
+        const result =
+            await checkTCP(
+                targetHost,
+                targetPort
+            );
+
+
+        /*
+         * JSON
+         */
 
         return res.status(200).json({
+
             ok: true,
-            server: key,
-            name,
-            host,
-            port: Number(port),
-            ...result
+
+            server: serverKey,
+
+            name: serverName,
+
+            host: targetHost,
+
+            port: Number(targetPort),
+
+            status: result.status,
+
+            response_time_ms:
+                result.response_time_ms,
+
+            error:
+                result.error || null
+
         });
 
-    } catch (error) {
-        console.error("CHECK ERROR:", error);
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "VPN CHECK ERROR:",
+            error
+        );
+
 
         return res.status(500).json({
+
             ok: false,
+
             error: error.message
+
         });
+
     }
+
 }
