@@ -12,7 +12,6 @@
 :root{
     --bg:#08090b;
     --surface:#0d0f12;
-    --surface2:#111318;
     --line:#1c1f24;
     --line2:#252930;
     --text:#f1f2f3;
@@ -35,29 +34,23 @@ body{
     min-height:100vh;
 }
 
-/* subtle background */
-
 body:before{
     content:"";
     position:fixed;
     inset:0;
     pointer-events:none;
     background:
-        linear-gradient(rgba(5,5,5,.018) 1px,transparent 1px),
-        linear-gradient(90deg,rgba(5,5,5,.018) 1px,transparent 1px);
+        linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
     background-size:72px 72px;
     mask-image:linear-gradient(to bottom,black,transparent 70%);
 }
-
-/* layout */
 
 .wrapper{
     width:min(1080px,calc(100% - 40px));
     margin:auto;
     padding:42px 0 60px;
 }
-
-/* header */
 
 header{
     height:58px;
@@ -114,8 +107,6 @@ header{
     box-shadow:0 0 12px var(--green);
 }
 
-/* intro */
-
 .intro{
     display:grid;
     grid-template-columns:1fr 300px;
@@ -145,9 +136,8 @@ h1{
     font-size:13px;
     line-height:1.8;
     max-width:430px;
+    margin-top:24px;
 }
-
-/* main status */
 
 .overall{
     border-left:1px solid var(--line2);
@@ -182,10 +172,8 @@ h1{
 
 .overall-dot.bad{
     background:var(--red);
-    box-shadow:0 0 18px rgba(5,83,109,.5);
+    box-shadow:0 0 18px rgba(255,83,109,.5);
 }
-
-/* toolbar */
 
 .toolbar{
     display:flex;
@@ -211,7 +199,7 @@ h1{
     font-family:"DM Mono",monospace;
     font-size:9px;
     cursor:pointer;
-    transition:.s;
+    transition:.25s;
 }
 
 .refresh:hover{
@@ -225,8 +213,6 @@ h1{
     cursor:default;
 }
 
-/* servers */
-
 .servers{
     border-top:1px solid var(--line);
 }
@@ -237,14 +223,12 @@ h1{
     min-height:145px;
     align-items:center;
     border-bottom:1px solid var(--line);
-    transition:
-        background .35s ease,
-        padding .35s ease;
+    transition:background .35s ease,padding .35s ease;
     position:relative;
 }
 
 .server:hover{
-    background:rgba(5,5,5,.018);
+    background:rgba(255,255,255,.018);
 }
 
 .server:after{
@@ -263,15 +247,13 @@ h1{
 }
 
 .server.offline{
-    background:rgba(5,83,109,.0);
+    background:rgba(255,83,109,.025);
 }
 
 .server.offline:after{
     width:100%;
     background:var(--red);
 }
-
-/* country */
 
 .country{
     display:flex;
@@ -309,8 +291,6 @@ h1{
     font-size:9px;
 }
 
-/* center */
-
 .center{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -341,8 +321,6 @@ h1{
     color:var(--red);
 }
 
-/* status */
-
 .server-status{
     justify-self:end;
     text-align:right;
@@ -368,7 +346,7 @@ h1{
 
 .offline .status-dot{
     background:var(--red);
-    box-shadow:0 0 12px rgba(5,83,109,.55);
+    box-shadow:0 0 12px rgba(255,83,109,.55);
     animation:redPulse 1.3s infinite;
 }
 
@@ -398,8 +376,6 @@ h1{
     color:var(--red);
 }
 
-/* bottom */
-
 .bottom{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -423,8 +399,6 @@ h1{
     margin-bottom:22px;
 }
 
-/* graph */
-
 .graph{
     height:48px;
     display:flex;
@@ -438,9 +412,7 @@ h1{
     min-width:3px;
     background:#30343a;
     border-radius:2px;
-    transition:
-        height .5s ease,
-        background .3s ease;
+    transition:height .5s ease,background .3s ease;
 }
 
 .bar.good{
@@ -448,10 +420,8 @@ h1{
 }
 
 .bar.bad{
-    background:rgba(5,83,109,.65);
+    background:rgba(255,83,109,.65);
 }
-
-/* stats */
 
 .stats{
     display:grid;
@@ -482,8 +452,6 @@ h1{
     font-size:9px;
 }
 
-/* footer */
-
 footer{
     display:flex;
     justify-content:space-between;
@@ -494,15 +462,13 @@ footer{
     letter-spacing:.4px;
 }
 
-/* notification */
-
 .notification{
     position:fixed;
     right:24px;
     top:24px;
     width:285px;
     padding:15px 17px;
-    border:1px solid rgba(5,83,109,.);
+    border:1px solid rgba(255,83,109,.25);
     background:#100b0d;
     border-radius:7px;
     transform:translateY(-20px);
@@ -529,8 +495,6 @@ footer{
     line-height:1.5;
 }
 
-/* mobile */
-
 @media(max-width:760px){
 
     .wrapper{
@@ -554,7 +518,7 @@ footer{
     h1{
         font-size:45px;
         letter-spacing:-3px;
-        margin-bottom:px;
+        margin-bottom:25px;
     }
 
     .overall{
@@ -680,9 +644,7 @@ footer{
     <button
         class="refresh"
         id="refreshBtn">
-
         ↻ &nbsp; CHECK NOW
-
     </button>
 
 </div>
@@ -710,7 +672,7 @@ footer{
             </div>
 
             <div class="address">
-                31.76.4.168:558
+                31.76.4.168:25558
             </div>
 
         </div>
@@ -729,9 +691,7 @@ footer{
             <div
                 id="state-ch"
                 class="metric-value">
-
                 CHECKING
-
             </div>
 
         </div>
@@ -746,9 +706,7 @@ footer{
             <div
                 id="latency-ch"
                 class="metric-value">
-
                 —
-
             </div>
 
         </div>
@@ -768,9 +726,7 @@ footer{
             <span
                 id="status-ch"
                 class="status-text">
-
                 CHECKING
-
             </span>
 
         </div>
@@ -780,16 +736,16 @@ footer{
 </article>
 
 
-<!-- POLAND -->
+<!-- GERMANY -->
 
 <article
     class="server checking"
-    id="card-pl">
+    id="card-de">
 
     <div class="country">
 
         <div class="country-code">
-            PL
+            DE
         </div>
 
         <div>
@@ -816,11 +772,9 @@ footer{
             </div>
 
             <div
-                id="state-pl"
+                id="state-de"
                 class="metric-value">
-
                 CHECKING
-
             </div>
 
         </div>
@@ -833,11 +787,9 @@ footer{
             </div>
 
             <div
-                id="latency-pl"
+                id="latency-de"
                 class="metric-value">
-
                 —
-
             </div>
 
         </div>
@@ -850,16 +802,14 @@ footer{
         <div class="status-line">
 
             <span
-                id="dot-pl"
+                id="dot-de"
                 class="status-dot">
             </span>
 
             <span
-                id="status-pl"
+                id="status-de"
                 class="status-text">
-
                 CHECKING
-
             </span>
 
         </div>
@@ -873,8 +823,6 @@ footer{
 
 <section class="bottom">
 
-
-<!-- HISTORY -->
 
 <div class="panel">
 
@@ -912,8 +860,6 @@ footer{
 </div>
 
 
-<!-- STATS -->
-
 <div class="panel">
 
     <div class="panel-title">
@@ -923,53 +869,18 @@ footer{
     <div class="stats">
 
         <div class="stat">
-
-            <div
-                id="online"
-                class="stat-number">
-
-                —
-
-            </div>
-
-            <div class="stat-label">
-                ONLINE
-            </div>
-
+            <div id="online" class="stat-number">—</div>
+            <div class="stat-label">ONLINE</div>
         </div>
 
-
         <div class="stat">
-
-            <div
-                id="offline"
-                class="stat-number">
-
-                —
-
-            </div>
-
-            <div class="stat-label">
-                OFFLINE
-            </div>
-
+            <div id="offline" class="stat-number">—</div>
+            <div class="stat-label">OFFLINE</div>
         </div>
 
-
         <div class="stat">
-
-            <div
-                id="checks"
-                class="stat-number">
-
-                0
-
-            </div>
-
-            <div class="stat-label">
-                CHECKS
-            </div>
-
+            <div id="checks" class="stat-number">0</div>
+            <div class="stat-label">CHECKS</div>
         </div>
 
     </div>
@@ -986,7 +897,7 @@ footer{
     </span>
 
     <span id="updated">
-        LAST CHECK — 
+        LAST CHECK —
     </span>
 
 </footer>
@@ -996,7 +907,7 @@ footer{
 
 <script>
 
-const servers = ["ch","pl"];
+const servers = ["ch","de"];
 
 let checkCount = 0;
 
@@ -1031,8 +942,6 @@ const notificationText =
     document.getElementById("notificationText");
 
 
-/* clock */
-
 function updateClock(){
 
     const now = new Date();
@@ -1053,8 +962,6 @@ setInterval(updateClock,1000);
 
 updateClock();
 
-
-/* checking state */
 
 function setChecking(id){
 
@@ -1082,8 +989,6 @@ function setChecking(id){
     status.textContent = "CHECKING";
 }
 
-
-/* result */
 
 function setResult(id,data){
 
@@ -1123,20 +1028,16 @@ function setResult(id,data){
             "ONLINE";
 
         return true;
-
     }
 
 
     card.classList.add("offline");
 
     state.textContent = "OFFLINE";
-
     state.className =
         "metric-value red";
 
-    latency.textContent =
-        "DOWN";
-
+    latency.textContent = "DOWN";
     latency.className =
         "metric-value red";
 
@@ -1146,8 +1047,6 @@ function setResult(id,data){
     return false;
 }
 
-
-/* server check */
 
 async function checkServer(id){
 
@@ -1195,8 +1094,6 @@ async function checkServer(id){
 }
 
 
-/* graph */
-
 function updateGraph(ok){
 
     history.push(ok);
@@ -1215,6 +1112,7 @@ function updateGraph(ok){
             if(index >= history.length){
 
                 bar.className = "bar";
+
                 bar.style.height =
                     (25 + Math.random()*20)+"%";
 
@@ -1241,17 +1139,13 @@ function updateGraph(ok){
 }
 
 
-/* all */
-
 async function checkAll(){
 
     refreshBtn.disabled = true;
 
     const results =
         await Promise.all(
-            servers.map(
-                checkServer
-            )
+            servers.map(checkServer)
         );
 
     checkCount++;
@@ -1268,34 +1162,26 @@ async function checkAll(){
     checks.textContent = checkCount;
 
 
-    /* overall */
-
     if(bad === 0){
 
         overallText.textContent =
             "All systems operational";
 
-        overallDot.classList.remove(
-            "bad"
-        );
+        overallDot.classList.remove("bad");
 
     }else if(good === 0){
 
         overallText.textContent =
             "All servers offline";
 
-        overallDot.classList.add(
-            "bad"
-        );
+        overallDot.classList.add("bad");
 
     }else{
 
         overallText.textContent =
             bad+" server offline";
 
-        overallDot.classList.add(
-            "bad"
-        );
+        overallDot.classList.add("bad");
     }
 
 
@@ -1316,8 +1202,6 @@ async function checkAll(){
         );
 
 
-    /* notification */
-
     if(bad > 0){
 
         const names = [];
@@ -1326,7 +1210,7 @@ async function checkAll(){
             names.push("Switzerland");
 
         if(!results[1])
-            names.push("Poland");
+            names.push("Germany");
 
 
         notificationText.textContent =
@@ -1342,18 +1226,14 @@ async function checkAll(){
         window.notificationTimer =
             setTimeout(
                 ()=>{
-                    notification.classList.remove(
-                        "show"
-                    );
+                    notification.classList.remove("show");
                 },
                 5000
             );
 
     }else{
 
-        notification.classList.remove(
-            "show"
-        );
+        notification.classList.remove("show");
     }
 
 
@@ -1361,20 +1241,14 @@ async function checkAll(){
 }
 
 
-/* manual */
-
 refreshBtn.addEventListener(
     "click",
     checkAll
 );
 
 
-/* initial */
-
 checkAll();
 
-
-/* automatic */
 
 setInterval(
     checkAll,
