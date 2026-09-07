@@ -11,7 +11,7 @@ const SERVERS = {
     pl: {
         name: "Poland",
         flag: "🇵🇱",
-        host: "2.26.255.84",
+        host: "193.36.236.18",
         port: 27489
     }
 };
